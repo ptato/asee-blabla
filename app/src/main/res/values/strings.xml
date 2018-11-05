@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">ASEE blabla</string>
+    <string name="app_name">ASEE Collection Manager</string>
+    <string-array name="left_drawer_items">
+        <item>Primero</item>
+        <item>Segundo</item>
+        <item>Tercero</item>
+    </string-array>
+    <string name="default_feed">Texto ¡Texto! ¡¡Texto!!</string>
+    <string name="drawer_open">Open?</string>
+    <string name="drawer_close">Close?</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 </resources>
