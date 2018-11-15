@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/detail_release_thumb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/detail_release_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/detail_release_thumb"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="-15dp"
+        android:layout_marginTop="176dp"
+        android:text="@string/default_release_title" />
+
+    <TextView
+        android:id="@+id/detail_release_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="208dp"
+        android:text="@string/default_artist_name" />
+
+    <TextView
+        android:id="@+id/detail_release_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/detail_release_title"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="-1dp"
+        android:layout_toEndOf="@+id/detail_release_artist"
+        android:text="@string/release_separator" />
+
+    <TextView
+        android:id="@+id/detail_release_year"
+        android:layout_width="157dp"
+        android:layout_height="20dp"
+        android:layout_alignTop="@+id/detail_release_artist"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="14dp"
+        android:text="@string/default_release_year" />
+</RelativeLayout>
