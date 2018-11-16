@@ -23,6 +23,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ptato.aseeblabla.db.AppDatabase;
+import com.ptato.aseeblabla.db.Release;
+import com.ptato.aseeblabla.db.ReleaseDAO;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +43,8 @@ import java.util.*;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
+    private List<Release> userReleases;
+
     public class OpenReleaseDetailListener implements ReleasesFragment.OnClickReleaseListener
     {
         @Override
@@ -48,6 +54,11 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+
+    private enum FABMode { MODE_ADD, MODE_EDIT };
+    private FABMode fabMode = FABMode.MODE_ADD;
+    FloatingActionButton fab = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -56,7 +67,11 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        userReleases = new ArrayList<>();
+        AppDatabase db = AppDatabase.getInstance(this);
+        userReleases = db.releaseDAO().getAll();
+
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -64,8 +79,27 @@ public class HomeActivity extends AppCompatActivity
             {
                 if (getCurrentView().equals(ReleaseDetailFragment.class.getSimpleName()))
                 {
-                    Snackbar.make(view, "Añadir a nosedonde", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    ReleaseDetailFragment rdf =
+                            (ReleaseDetailFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
+                    Release newRelease = rdf.getRelease();
+
+                    if (fabMode == FABMode.MODE_ADD)
+                    {
+                        if (userReleases.contains(newRelease))
+                        {
+                            Snackbar.make(view, newRelease.title + " ya está añadido.", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        } else
+                        {
+                            userReleases.add(newRelease);
+                            setFABModeEdit();
+                        }
+                    } else if (fabMode == FABMode.MODE_EDIT)
+                    {
+                        userReleases.set(userReleases.indexOf(newRelease), newRelease);
+                    }
+
+
                 } else
                 {
                     Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -87,6 +121,16 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        ReleaseDAO releaseDAO = AppDatabase.getInstance(this).releaseDAO();
+        List<Release> existingReleases = releaseDAO.getAll();
+        releaseDAO.deleteReleases(existingReleases);
+        releaseDAO.insertReleases(userReleases);
+    }
+
+    @Override
     public void onBackPressed()
     {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -101,9 +145,13 @@ public class HomeActivity extends AppCompatActivity
             if (getCurrentView().equals(ReleasesFragment.class.getSimpleName())
                     && ((ReleasesFragment)f).isSearching())
             {
-                ((ReleasesFragment)f).setReleases(new ArrayList<Release>());
+                ((ReleasesFragment)f).setReleases(userReleases);
             } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
             {
+                if (getCurrentView().equals(ReleaseDetailFragment.class.getSimpleName()))
+                {
+                    setFABModeAdd();
+                }
                 fm.popBackStack();
             } else
             {
@@ -357,12 +405,24 @@ public class HomeActivity extends AppCompatActivity
     public void changeToDetailReleaseView(Release release)
     {
         ReleaseDetailFragment releaseDetailFragment = new ReleaseDetailFragment();
-        releaseDetailFragment.setRelease(release);
+
+        Release addRelease = release;
+        if (userReleases.contains(release))
+            addRelease = userReleases.get(userReleases.indexOf(release));
+        releaseDetailFragment.setRelease(addRelease);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, releaseDetailFragment, ReleasesFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
+
+        if (userReleases.contains(release))
+        {
+            setFABModeEdit();
+        } else
+        {
+            setFABModeAdd();
+        }
     }
 
     public String getCurrentView()
@@ -370,5 +430,22 @@ public class HomeActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         String name = fm.findFragmentById(R.id.home_content_area).getClass().getSimpleName();
         return name;
+    }
+
+    public List<Release> getUserReleases()
+    {
+        return userReleases;
+    }
+
+    public void setFABModeAdd()
+    {
+        fab.setImageResource(R.mipmap.plus);
+        fabMode = FABMode.MODE_ADD;
+    }
+
+    public void setFABModeEdit()
+    {
+        fab.setImageResource(R.drawable.ic_menu_gallery);
+        fabMode = FABMode.MODE_EDIT;
     }
 }

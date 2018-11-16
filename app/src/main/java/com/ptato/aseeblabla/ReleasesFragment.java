@@ -1,29 +1,22 @@
 package com.ptato.aseeblabla;
 
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.InputStream;
-import java.net.URL;
+import com.ptato.aseeblabla.db.Release;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ReleasesFragment extends Fragment
 {
@@ -49,11 +42,20 @@ public class ReleasesFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        recyclerView.setAdapter(new ReleasesFragmentAdapter(persistReleases, itemOnClickListener));
+        List<Release> userReleases = ((HomeActivity)getActivity()).getUserReleases();
+        List<Release> whichReleases = null;
+        if (isSearchingValue)
+            whichReleases = persistReleases;
+        else
+            whichReleases = userReleases;
+
+
+        recyclerView.setAdapter(new ReleasesFragmentAdapter(whichReleases, itemOnClickListener));
+
 
         emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
         emptyTextView.setVisibility(
-                persistReleases != null && persistReleases.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+                whichReleases != null && whichReleases.size() > 0 ? View.INVISIBLE : View.VISIBLE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);

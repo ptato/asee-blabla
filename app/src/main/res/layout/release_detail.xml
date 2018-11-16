@@ -55,4 +55,26 @@
         android:layout_marginTop="-2dp"
         android:layout_marginEnd="14dp"
         android:text="@string/default_release_year" />
+
+    <EditText
+        android:id="@+id/detail_estrellas_number"
+        android:layout_width="74dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="218dp"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/detail_estrellas_label"
+        android:layout_width="163dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="218dp"
+        android:layout_toEndOf="@+id/detail_estrellas_number"
+        android:text="estrellas"
+        android:textSize="18sp" />
 </RelativeLayout>
