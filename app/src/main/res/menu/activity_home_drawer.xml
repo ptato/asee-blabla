@@ -6,9 +6,6 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
-            android:title="Home" />
-        <item
             android:id="@+id/nav_my_releases"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/releases_menu_title" />
@@ -17,19 +14,17 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Artistas" />
 
-    </group>
+        <item
+            android:id="@+id/nav_releases"
+            android:icon="?android:attr/actionModeWebSearchDrawable"
+            android:title="Buscar Lanzamientos Online" />
 
-    <item android:title="Búsqueda Online">
-        <menu>
-            <item
-                android:id="@+id/nav_releases"
-                android:icon="?android:attr/actionModeWebSearchDrawable"
-                android:title="Buscar Lanzamientos" />
-            <item
-                android:id="@+id/nav_artists"
-                android:icon="?android:attr/actionModeWebSearchDrawable"
-                android:title="Buscar Artistas" />
-        </menu>
-    </item>
+        <item
+            android:id="@+id/nav_artists"
+            android:icon="?android:attr/actionModeWebSearchDrawable"
+            android:title="Buscar Artistas Online" />
+
+
+    </group>
 
 </menu>
