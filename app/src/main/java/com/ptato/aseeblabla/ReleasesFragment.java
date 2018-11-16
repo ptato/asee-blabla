@@ -118,7 +118,7 @@ public class ReleasesFragment extends Fragment
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
         {
             View releaseLayoutView = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.home_entry, viewGroup, false);
+                    .inflate(R.layout.release_entry, viewGroup, false);
 
 
             ViewHolder viewHolder = new ViewHolder(releaseLayoutView);

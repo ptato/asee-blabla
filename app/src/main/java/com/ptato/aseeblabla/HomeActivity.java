@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ptato.aseeblabla.db.AppDatabase;
+import com.ptato.aseeblabla.db.Artist;
 import com.ptato.aseeblabla.db.Release;
 import com.ptato.aseeblabla.db.ReleaseDAO;
 
@@ -54,6 +55,15 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    public class OpenArtistDetailListener implements ArtistsFragment.OnClickArtistListener
+    {
+        @Override
+        public void onClick(Artist a)
+        {
+            Snackbar.make(HomeActivity.this.findViewById(R.id.home_content_area), a.name + " detalles!!", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+    }
 
     private enum FABMode { MODE_ADD, MODE_EDIT };
     private FABMode fabMode = FABMode.MODE_ADD;
@@ -68,8 +78,15 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         userReleases = new ArrayList<>();
-        AppDatabase db = AppDatabase.getInstance(this);
-        userReleases = db.releaseDAO().getAll();
+        new AsyncTask<Context, Void, Void>() {
+            @Override
+            protected Void doInBackground(Context ... contexts)
+            {
+                AppDatabase db = AppDatabase.getInstance(contexts[0]);
+                userReleases = db.releaseDAO().getAll();
+                return null;
+            }
+        }.execute(this);
 
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener()
@@ -124,10 +141,18 @@ public class HomeActivity extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
-        ReleaseDAO releaseDAO = AppDatabase.getInstance(this).releaseDAO();
-        List<Release> existingReleases = releaseDAO.getAll();
-        releaseDAO.deleteReleases(existingReleases);
-        releaseDAO.insertReleases(userReleases);
+
+        new AsyncTask<Context, Void, Void>() {
+            @Override
+            protected Void doInBackground(Context... contexts)
+            {
+                ReleaseDAO releaseDAO = AppDatabase.getInstance(contexts[0]).releaseDAO();
+                List<Release> existingReleases = releaseDAO.getAll();
+                releaseDAO.deleteReleases(existingReleases);
+                releaseDAO.insertReleases(userReleases);
+                return null;
+            }
+        }.execute(this);
     }
 
     @Override
@@ -153,6 +178,10 @@ public class HomeActivity extends AppCompatActivity
                     setFABModeAdd();
                 }
                 fm.popBackStack();
+            } else if (getCurrentView().equals(ArtistsFragment.class.getSimpleName())
+                    && ((ArtistsFragment)f).isSearching())
+            {
+                ((ArtistsFragment)f).setArtists(getUserArtists());
             } else
             {
                 super.onBackPressed();
@@ -180,7 +209,15 @@ public class HomeActivity extends AppCompatActivity
                         //noinspection unchecked
                         new GetMusicAPITask().execute(
                                 Pair.create(GetMusicAPITask.TYPE, GetMusicAPITask.TYPE_RELEASE),
-                                Pair.create(GetMusicAPITask.RELEASE_TITLE, s));
+                                Pair.create(GetMusicAPITask.COMBINED_TITLE, s));
+                        searchView.clearFocus();
+                        menu.findItem(R.id.action_search).collapseActionView();
+                        return true;
+                    } else if (getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
+                    {
+                        new GetMusicAPITask().execute(
+                                Pair.create(GetMusicAPITask.TYPE, GetMusicAPITask.TYPE_ARTIST),
+                                Pair.create(GetMusicAPITask.COMBINED_TITLE, s));
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                         return true;
@@ -230,7 +267,7 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_releases && !getCurrentView().equals(ReleasesFragment.class.getSimpleName()))
         {
             changeToGeneralReleaseView();
-        } else if (id == R.id.nav_artists && !getCurrentView().equals("TODO TODO TODO TODO TODO"))
+        } else if (id == R.id.nav_artists && !getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
         {
             changeToGeneralArtistView();
         }
@@ -240,7 +277,7 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    private class GetMusicAPITask extends AsyncTask<Pair<String, String>, Void, List<Release>>
+    private class GetMusicAPITask extends AsyncTask<Pair<String, String>, Void, JSONObject>
     {
         //private static final String baseURL = "https://api.discogs.com/releases/249504";
         private static final String baseURL = "https://api.discogs.com/";
@@ -252,6 +289,7 @@ public class HomeActivity extends AppCompatActivity
         public static final String TYPE_MASTER = "master";
         public static final String TYPE_LABEL = "label";
 
+        public static final String NORMAL_QUERY = "query";
         public static final String COMBINED_TITLE = "title";
         public static final String RELEASE_TITLE = "release_title";
         public static final String CREDIT = "credit";
@@ -263,7 +301,7 @@ public class HomeActivity extends AppCompatActivity
 
         @SafeVarargs
         @Override
-        protected final List<Release> doInBackground(Pair<String, String>... params)
+        protected final JSONObject doInBackground(Pair<String, String>... params)
         {
             JSONObject jsonResult = null;
 
@@ -333,47 +371,98 @@ public class HomeActivity extends AppCompatActivity
                 }
             }
 
-            List<Release> releases = new ArrayList<>();
+            boolean isArtists = true;
+            for (Pair<String, String> param : params)
+            {
+                if (Objects.equals(param.first, TYPE))
+                {
+                    isArtists = Objects.equals(param.second, TYPE_ARTIST);
+                }
+            }
+
             try
             {
-                if (jsonResult != null && jsonResult.has("results"))
+                jsonResult.put("type_of_json", isArtists);
+            } catch (Exception e)
+            {
+                Log.e(GetMusicAPITask.class.getName(), "Did not add type_of_json. This isn't going to work.");
+            }
+
+            return jsonResult;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject json)
+        {
+            super.onPostExecute(json);
+
+            try
+            {
+                boolean isArtists = json.getBoolean("type_of_json");
+                if (json != null && json.has("results"))
                 {
-                    JSONArray results = jsonResult.getJSONArray("results");
-                    for(int releaseIndex = 0; releaseIndex < results.length(); ++releaseIndex)
+                    if (isArtists)
                     {
-                        JSONObject release = results.getJSONObject(releaseIndex);
+                        List<Artist> artists = new ArrayList<>();
 
-                        Release r = new Release();
-                        r.discogsId = release.optInt("id", -1);
-                        r.thumbUrl = release.optString("thumb", "");
+                        JSONArray results = json.getJSONArray("results");
+                        for (int artistIndex = 0; artistIndex < results.length(); ++artistIndex)
+                        {
+                            JSONObject artist = results.getJSONObject(artistIndex);
+                            if (artist.optString("type").equals(TYPE_ARTIST))
+                            {
+                                Artist a = new Artist();
 
-                        String defaultTitle = "Unknown Artist - Unknown Title";
-                        r.title = release.optString("title", defaultTitle).split("-")[1].substring(1);
-                        r.artist = release.optString("title", defaultTitle).split("-")[0];
-                        r.artist = r.artist.substring(0, r.artist.length() - 1);
-                        r.year = release.optString("year", "Unknown Year");
-                        // uri, format (list<string>), label (list<string>), cover_image,
-                        // genre (list<string>), resource_url, style (list<string>)
-                        releases.add(r);
+                                a.discogsId = artist.optInt("id", -1);
+                                a.name = artist.optString("title");
+                                a.imgUrl = artist.optString("thumb");
+
+                                artists.add(a);
+                            }
+
+                        }
+;
+
+                        if(getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
+                        {
+                            ArtistsFragment af = (ArtistsFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
+                            if (af != null) af.setArtists(artists);
+                        }
+
+                    } else
+                    {
+                        List<Release> releases = new ArrayList<>();
+
+                        JSONArray results = json.getJSONArray("results");
+                        for(int releaseIndex = 0; releaseIndex < results.length(); ++releaseIndex)
+                        {
+                            JSONObject release = results.getJSONObject(releaseIndex);
+
+                            Release r = new Release();
+                            r.discogsId = release.optInt("id", -1);
+                            r.thumbUrl = release.optString("thumb", "");
+
+                            String defaultTitle = "Unknown Artist - Unknown Title";
+                            r.title = release.optString("title", defaultTitle).split("-")[1].substring(1);
+                            r.artist = release.optString("title", defaultTitle).split("-")[0];
+                            r.artist = r.artist.substring(0, r.artist.length() - 1);
+                            r.year = release.optString("year", "Unknown Year");
+                            // uri, format (list<string>), label (list<string>), cover_image,
+                            // genre (list<string>), resource_url, style (list<string>)
+                            releases.add(r);
+                        }
+
+                        if(getCurrentView().equals(ReleasesFragment.class.getSimpleName()))
+                        {
+                            ReleasesFragment rf = (ReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
+                            if (rf != null) rf.setReleases(releases, true);
+                        }
                     }
                 }
             } catch (JSONException e)
             {
                 Log.e(GetMusicAPITask.class.getName(), "Error al parsear JSON");
                 Log.e(GetMusicAPITask.class.getName(), e.getMessage());
-            }
-
-            return releases;
-        }
-
-        @Override
-        protected void onPostExecute(List<Release> releases)
-        {
-            super.onPostExecute(releases);
-            if(getCurrentView().equals(ReleasesFragment.class.getSimpleName()))
-            {
-                ReleasesFragment rf = (ReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                if (rf != null) rf.setReleases(releases, true);
             }
         }
     }
@@ -393,11 +482,11 @@ public class HomeActivity extends AppCompatActivity
 
     public void changeToGeneralArtistView()
     {
-        ReleasesFragment artistsFragment = new ReleasesFragment();
-        artistsFragment.setItemOnClickListener(new OpenReleaseDetailListener());
+        ArtistsFragment artistsFragment = new ArtistsFragment();
+        artistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.home_content_area, artistsFragment, "TODO TODO TODO TODO")
+                .replace(R.id.home_content_area, artistsFragment, ArtistsFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
     }
@@ -435,6 +524,12 @@ public class HomeActivity extends AppCompatActivity
     public List<Release> getUserReleases()
     {
         return userReleases;
+    }
+
+    public List<Artist> getUserArtists()
+    {
+        // TODO
+        return new ArrayList<>();
     }
 
     public void setFABModeAdd()

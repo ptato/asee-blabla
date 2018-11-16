@@ -14,7 +14,7 @@ public interface ReleaseDAO
     @Insert
     void insertReleases(List<Release> releases);
     @Update
-    public void updateReleases(List<Release> releases);
+    void updateReleases(List<Release> releases);
     @Delete
     void deleteReleases(List<Release> releases);
     @Query("SELECT * FROM releases")
