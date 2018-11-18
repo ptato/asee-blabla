@@ -10,7 +10,7 @@
 
     <string name="cover_thumb_content_description">Cover Preview</string>
     <string name="search_action_text">Search</string>
-    <string name="releases_menu_title">Releases</string>
+    <string name="releases_menu_title">Mis Lanzamientos</string>
     <string name="default_release_title">DEFAULT RELEASE TITLE</string>
     <string name="default_artist_name">DEFAULT ARTIST NAME</string>
     <string name="release_separator">-</string>

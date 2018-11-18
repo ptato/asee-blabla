@@ -9,10 +9,6 @@
             android:id="@+id/nav_my_releases"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/releases_menu_title" />
-        <item
-            android:id="@+id/nav_my_artists"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Artistas" />
 
         <item
             android:id="@+id/nav_releases"

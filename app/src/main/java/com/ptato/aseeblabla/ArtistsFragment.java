@@ -24,8 +24,6 @@ public class ArtistsFragment extends Fragment
     private OnClickArtistListener itemOnClickListener;
     private List<Artist> persistArtists = null;
 
-    private boolean isSearchingValue;
-
     private TextView emptyTextView;
 
     public interface OnClickArtistListener
@@ -42,21 +40,13 @@ public class ArtistsFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        List<Artist> userArtists = ((HomeActivity)getActivity()).getUserArtists();
-        List<Artist> whichArtists = null;
-        if (isSearchingValue)
-            whichArtists = persistArtists;
-        else
-            whichArtists = userArtists;
-
-
-        recyclerView.setAdapter(new ArtistsFragmentAdapter(whichArtists, itemOnClickListener));
+        recyclerView.setAdapter(new ArtistsFragmentAdapter(persistArtists, itemOnClickListener));
 
 
         emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
         emptyTextView.setText("No se han encontrado artistas");
         emptyTextView.setVisibility(
-                whichArtists != null && whichArtists.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+                persistArtists != null && persistArtists.size() > 0 ? View.INVISIBLE : View.VISIBLE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -72,11 +62,6 @@ public class ArtistsFragment extends Fragment
 
     public void setArtists(List<Artist> artists)
     {
-        setArtists(artists, false);
-    }
-
-    public void setArtists(List<Artist> artists, boolean search)
-    {
         persistArtists = artists;
 
         ArtistsFragmentAdapter afa = (ArtistsFragmentAdapter) recyclerView.getAdapter();
@@ -90,8 +75,7 @@ public class ArtistsFragment extends Fragment
                 emptyTextView.setVisibility(View.VISIBLE);
         }
 
-        isSearchingValue = search;
-        if (isSearchingValue && artists.size() == 0)
+        if (artists.size() == 0)
         {
             emptyTextView.setText(R.string.results_not_found);
             emptyTextView.setVisibility(View.VISIBLE);
@@ -173,8 +157,9 @@ public class ArtistsFragment extends Fragment
         }
     }
 
-    public boolean isSearching()
+    public int getArtistCount()
     {
-        return isSearchingValue;
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        return adapter == null ? 0 : adapter.getItemCount();
     }
 }
