@@ -408,22 +408,26 @@ public class HomeActivity extends AppCompatActivity
                     for (int i = 0; i < releases.length(); ++i)
                     {
                         JSONObject object = releases.optJSONObject(i);
-                        Release release = new Release();
-                        release.discogsId = object.optInt("id", -1);
-                        if (userReleases.contains(release))
+                        if (object.optString("type", "").equals("release"))
                         {
-                            release = userReleases.get(userReleases.indexOf(release));
-                        } else
-                        {
-                            release.title = object.optString("title", "Unknown Title");
-                            release.thumbUrl = object.optString("thumb", "");
-                            release.year = Integer.toString(object.optInt("year", 0));
+                            Release release = new Release();
+                            release.discogsId = object.optInt("id", -1);
+                            if (userReleases.contains(release))
+                            {
+                                release = userReleases.get(userReleases.indexOf(release));
+                            } else
+                            {
+                                release.title = object.optString("title", "Unknown Title");
+                                release.thumbUrl = object.optString("thumb", "");
+                                release.year = Integer.toString(object.optInt("year", 0));
+                            }
+                            releasesResult.add(release);
                         }
-                        releasesResult.add(release);
+
                     }
                 }
             }
-            
+
             srf.setReleases(releasesResult);
         }
     }
@@ -530,9 +534,14 @@ public class HomeActivity extends AppCompatActivity
 
             JSONArray genres = jsonObject.optJSONArray("genres");
             JSONArray styles = jsonObject.optJSONArray("styles");
-            r.genres =
-                    (genres == null ? "" : genres.toString())
-                    + (styles == null ? "" : styles.toString());
+            StringBuilder builder = new StringBuilder();
+            if (genres != null)
+                for (int i = 0; i < genres.length(); ++i)
+                   builder.append(genres.optString(i, "unknown") + ", ");
+            if (styles != null)
+                for (int i = 0; i < styles.length(); ++i)
+                    builder.append(styles.optString(i, "unknown") + ", ");
+            r.genres = builder.toString().substring(0, builder.toString().length() - 2);
 
             rdf.setRelease(r);
         }

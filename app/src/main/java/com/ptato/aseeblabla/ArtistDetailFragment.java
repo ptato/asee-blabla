@@ -68,7 +68,7 @@ public class ArtistDetailFragment extends Fragment
             public void onClick(View v)
             {
                 SearchReleasesFragment srf = a.changeToSearchReleaseView();
-                new HomeActivity.DiscogsGetArtistReleasesTask(a, srf).execute();
+                new HomeActivity.DiscogsGetArtistReleasesTask(a, srf).execute(artist.discogsId);
             }
         });
     }
