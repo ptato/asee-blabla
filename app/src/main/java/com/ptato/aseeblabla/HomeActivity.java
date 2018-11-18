@@ -305,7 +305,7 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    private JSONObject getResponseFromDiscogs(String url, String authToken)
+    private static JSONObject getResponseFromDiscogs(String url, String authToken)
     {
         JSONObject jsonResult = null;
 
@@ -361,6 +361,120 @@ public class HomeActivity extends AppCompatActivity
 
         return jsonResult;
     }
+
+    public static class DiscogsGetArtistReleasesTask extends AsyncTask<Integer, Void, JSONObject>
+    {
+        private static final String baseURL = "https://api.discogs.com/";
+        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
+        private SearchReleasesFragment srf;
+        private HomeActivity ha;
+
+        public DiscogsGetArtistReleasesTask(HomeActivity _ha, SearchReleasesFragment _srf)
+        {
+            srf = _srf;
+            ha = _ha;
+        }
+
+
+        @Override
+        protected JSONObject doInBackground(Integer... integers)
+        {
+            JSONObject jsonResult = null;
+
+            if (integers.length > 0)
+            {
+                StringBuilder queryURLBuilder = new StringBuilder(
+                        baseURL + "artists/" + integers[0].toString() + "/releases");
+                Log.i(this.getClass().getName(), queryURLBuilder.toString());
+                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
+            }
+
+            return jsonResult;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject)
+        {
+            super.onPostExecute(jsonObject);
+
+            List<Release> releasesResult = new ArrayList<>();
+            List<Release> userReleases = ha.getUserReleases();
+
+            if (jsonObject != null)
+            {
+                JSONArray releases = jsonObject.optJSONArray("releases");
+                if (releases != null)
+                {
+                    for (int i = 0; i < releases.length(); ++i)
+                    {
+                        JSONObject object = releases.optJSONObject(i);
+                        Release release = new Release();
+                        release.discogsId = object.optInt("id", -1);
+                        if (userReleases.contains(release))
+                        {
+                            release = userReleases.get(userReleases.indexOf(release));
+                        } else
+                        {
+                            release.title = object.optString("title", "Unknown Title");
+                            release.thumbUrl = object.optString("thumb", "");
+                            release.year = Integer.toString(object.optInt("year", 0));
+                        }
+                        releasesResult.add(release);
+                    }
+                }
+            }
+            
+            srf.setReleases(releasesResult);
+        }
+    }
+
+    public static class DiscogsGetArtistDetailsTask extends AsyncTask<Integer, Void, JSONObject>
+    {
+        private static final String baseURL = "https://api.discogs.com/";
+        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
+        private ArtistDetailFragment adf;
+
+        public DiscogsGetArtistDetailsTask(ArtistDetailFragment _adf)
+        {
+            adf = _adf;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Integer... integers)
+        {
+            JSONObject jsonResult = null;
+
+            if (integers.length > 0)
+            {
+                StringBuilder queryURLBuilder = new StringBuilder(baseURL + "artists/" + integers[0].toString());
+                Log.i(this.getClass().getName(), queryURLBuilder.toString());
+                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
+            }
+
+            return jsonResult;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject)
+        {
+            super.onPostExecute(jsonObject);
+
+            Artist oldArtist = adf.getArtist();
+            Artist a = new Artist();
+
+            a.discogsId = oldArtist.discogsId;
+            a.name = oldArtist.name;
+            JSONArray images = jsonObject.optJSONArray("images");
+            JSONObject image0 = images == null ? null :
+                    images.optJSONObject(0);
+            a.imgUrl = image0 == null ? "" :
+                    image0.optString("uri", "");
+            a.profile = jsonObject.optString("profile", "");
+
+            adf.setArtist(a);
+        }
+    }
+
     private class DiscogsGetReleaseDetailsTask extends AsyncTask<Integer, Void, JSONObject>
     {
         private static final String baseURL = "https://api.discogs.com/";
@@ -566,8 +680,8 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public void changeToSearchReleaseView() { changeToSearchReleaseView(true);}
-    public void changeToSearchReleaseView(boolean addToBackStack)
+    public SearchReleasesFragment changeToSearchReleaseView() { return changeToSearchReleaseView(true);}
+    public SearchReleasesFragment changeToSearchReleaseView(boolean addToBackStack)
     {
         SearchReleasesFragment searchReleasesFragment = new SearchReleasesFragment();
         searchReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
@@ -577,6 +691,7 @@ public class HomeActivity extends AppCompatActivity
         if (addToBackStack) replace.addToBackStack(null);
         setFABModeInvisible();
         replace.commit();
+        return searchReleasesFragment;
     }
 
     public UserReleasesFragment changeToUserReleaseView() { return changeToUserReleaseView(true); }
@@ -645,8 +760,10 @@ public class HomeActivity extends AppCompatActivity
         testFragment.setArtist(testArtist);
 
         Artist addArtist = artist;
-        // TODO: look at changeToDetailReleaseView
         adf.setArtist(addArtist);
+
+        new DiscogsGetArtistDetailsTask(adf).execute(artist.discogsId);
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, adf, ArtistDetailFragment.class.getSimpleName())

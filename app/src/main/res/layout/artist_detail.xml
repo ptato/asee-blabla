@@ -37,4 +37,13 @@
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat" />
 
+    <Button
+        android:id="@+id/detail_artist_view_releases"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/detail_artist_name"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="136dp"
+        android:text="View Releases" />
+
 </RelativeLayout>

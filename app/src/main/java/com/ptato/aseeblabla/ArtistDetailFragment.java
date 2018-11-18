@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +25,8 @@ public class ArtistDetailFragment extends Fragment
         rootView = inflater.inflate(R.layout.artist_detail, container, false);
 
         updateView();
+
+
 
         return rootView;
     }
@@ -51,12 +54,23 @@ public class ArtistDetailFragment extends Fragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        HomeActivity a = (HomeActivity)getActivity();
+        final HomeActivity a = (HomeActivity)getActivity();
         if (a != null)
         {
             a.disableDelete();
             a.disableSearch();
         }
+
+        Button viewReleases = rootView.findViewById(R.id.detail_artist_view_releases);
+        viewReleases.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                SearchReleasesFragment srf = a.changeToSearchReleaseView();
+                new HomeActivity.DiscogsGetArtistReleasesTask(a, srf).execute();
+            }
+        });
     }
 
     public void setArtist(Artist a) { artist = a; updateView(); }
