@@ -55,8 +55,6 @@ public class SearchReleasesFragment extends Fragment
     {
         super.onActivityCreated(savedInstanceState);
         HomeActivity a = (HomeActivity)getActivity();
-        a.disableDelete();
-        a.enableSearch();
     }
 
 

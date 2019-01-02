@@ -102,8 +102,6 @@ public class UserReleasesFragment extends Fragment
     {
         super.onActivityCreated(savedInstanceState);
         HomeActivity a = (HomeActivity)getActivity();
-        a.disableDelete();
-        a.enableSearch();
     }
 
     public boolean isUsingSearchResults() { return isUsingSearchResultsValue; }

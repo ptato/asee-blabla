@@ -533,10 +533,4 @@ public class HomeActivity extends AppCompatActivity
     {
         return userReleases;
     }
-
-    public void disableSearch() { if (searchItem != null) searchItem.setVisible(false); }
-    public void enableSearch() { if (searchItem != null) searchItem.setVisible(true); }
-
-    public void disableDelete() { if (deleteItem!= null) deleteItem.setVisible(false); }
-    public void enableDelete() { if (deleteItem != null) deleteItem.setVisible(true); }
 }
