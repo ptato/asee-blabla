@@ -18,6 +18,7 @@ import com.ptato.aseeblabla.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
+import com.ptato.aseeblabla.ui.detail.DetailViewModelFactory;
 
 public class ArtistDetailActivity extends AppCompatActivity
 {
@@ -37,7 +38,7 @@ public class ArtistDetailActivity extends AppCompatActivity
 
         int artistId = getIntent().getIntExtra(ARTIST_ID_EXTRA, -1);
         Repository repository = Repository.getInstance(this);
-        ArtistDetailViewModel.Factory factory = new ArtistDetailViewModel.Factory(repository, artistId);
+        DetailViewModelFactory factory = new DetailViewModelFactory(repository, artistId);
         ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
         viewModel.getArtist().observe(this, new Observer<Artist>()
         {

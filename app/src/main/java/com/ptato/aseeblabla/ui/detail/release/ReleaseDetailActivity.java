@@ -22,6 +22,7 @@ import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.detail.DetailViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailViewModel;
 
@@ -45,7 +46,7 @@ public class ReleaseDetailActivity extends AppCompatActivity
 
         int releaseId = getIntent().getIntExtra(RELEASE_ID_EXTRA, -1);
         repository = Repository.getInstance(this);
-        ReleaseDetailViewModel.Factory factory = new ReleaseDetailViewModel.Factory(repository, releaseId);
+        DetailViewModelFactory factory = new DetailViewModelFactory(repository, releaseId);
         viewModel = ViewModelProviders.of(this, factory).get(ReleaseDetailViewModel.class);
         viewModel.getRelease().observe(this, new Observer<Release>()
         {

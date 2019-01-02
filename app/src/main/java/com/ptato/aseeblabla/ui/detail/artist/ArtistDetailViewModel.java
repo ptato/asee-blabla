@@ -21,22 +21,4 @@ public class ArtistDetailViewModel extends ViewModel
     {
         return artistData;
     }
-
-    public static class Factory extends ViewModelProvider.NewInstanceFactory
-    {
-        Repository repository;
-        int id;
-        public Factory(Repository re, int a)
-        {
-            repository = re;
-            id = a;
-        }
-
-        @NonNull @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass)
-        {
-            // noinspection unchecked
-            return (T) new ArtistDetailViewModel(repository, id);
-        }
-    }
 }
