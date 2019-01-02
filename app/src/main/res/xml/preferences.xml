@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_num_in_page"
+        android:title="Number of results"
+        android:summary="Maximum number of results shown in a search page"
+        android:inputType="number"
+        android:defaultValue="25" />
+</PreferenceScreen>

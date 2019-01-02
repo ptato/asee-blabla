@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.ui.detail.artist;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.DownloadImageTask;
+import com.ptato.aseeblabla.HomeActivity;
+import com.ptato.aseeblabla.R;
+import com.ptato.aseeblabla.SearchReleasesFragment;
 import com.ptato.aseeblabla.db.Artist;
 
 public class ArtistDetailFragment extends Fragment

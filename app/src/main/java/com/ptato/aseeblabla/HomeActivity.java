@@ -2,6 +2,7 @@ package com.ptato.aseeblabla;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,21 +24,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ptato.aseeblabla.data.DiscogsAPIUtils;
 import com.ptato.aseeblabla.db.AppDatabase;
 import com.ptato.aseeblabla.db.Artist;
 import com.ptato.aseeblabla.db.Release;
 import com.ptato.aseeblabla.db.ReleaseDAO;
+import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 
 public class HomeActivity extends AppCompatActivity
@@ -305,63 +302,6 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    private static JSONObject getResponseFromDiscogs(String url, String authToken)
-    {
-        JSONObject jsonResult = null;
-
-        try
-        {
-            URL queryURL = new URL(url);
-
-            HttpURLConnection urlConnection = (HttpURLConnection) queryURL.openConnection();
-            urlConnection.setRequestProperty("User-Agent", "ASEE-Blabla/1.0");
-            urlConnection.setRequestProperty("Authorization", "Discogs token=" + authToken);
-
-            BufferedReader bufferedReader =
-                    new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            StringBuilder stringBuilder = new StringBuilder();
-            while (true)
-            {
-                String line = bufferedReader.readLine();
-                if (line == null)
-                    break;
-                stringBuilder.append(line);
-            }
-
-
-            if (urlConnection.getResponseCode() != 200)
-            {
-                Log.e(DiscogsSearchQueryTask.class.getName(), "Codigo de respuesta de error");
-                throw new IOException();
-            }
-
-            String stringResponse = stringBuilder.toString();
-            jsonResult = new JSONObject(stringResponse);
-        } catch (MalformedURLException e)
-        {
-            Log.e(DiscogsSearchQueryTask.class.getName(), "No se puede crear la URL");
-            Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
-        } catch (IOException e)
-        {
-            Log.e(DiscogsSearchQueryTask.class.getName(), "No se puede conectar a la URL");
-            Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
-        } catch (JSONException e)
-        {
-            Log.e(DiscogsSearchQueryTask.class.getName(), "Recibido JSON incorrecto");
-            Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
-        }
-
-        try
-        {
-            Log.i(DiscogsSearchQueryTask.class.getName(), jsonResult == null ? "JSON Vacío" : jsonResult.toString(4));
-        } catch (JSONException e)
-        {
-            Log.i(DiscogsSearchQueryTask.class.getName(), "Can't log JSON");
-        }
-
-        return jsonResult;
-    }
-
     public static class DiscogsGetArtistReleasesTask extends AsyncTask<Integer, Void, JSONObject>
     {
         private static final String baseURL = "https://api.discogs.com/";
@@ -386,7 +326,7 @@ public class HomeActivity extends AppCompatActivity
                 StringBuilder queryURLBuilder = new StringBuilder(
                         baseURL + "artists/" + integers[0].toString() + "/releases");
                 Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
+                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
             }
 
             return jsonResult;
@@ -432,53 +372,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public static class DiscogsGetArtistDetailsTask extends AsyncTask<Integer, Void, JSONObject>
-    {
-        private static final String baseURL = "https://api.discogs.com/";
-        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
-        private ArtistDetailFragment adf;
-
-        public DiscogsGetArtistDetailsTask(ArtistDetailFragment _adf)
-        {
-            adf = _adf;
-        }
-
-        @Override
-        protected JSONObject doInBackground(Integer... integers)
-        {
-            JSONObject jsonResult = null;
-
-            if (integers.length > 0)
-            {
-                StringBuilder queryURLBuilder = new StringBuilder(baseURL + "artists/" + integers[0].toString());
-                Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
-            }
-
-            return jsonResult;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject)
-        {
-            super.onPostExecute(jsonObject);
-
-            Artist oldArtist = adf.getArtist();
-            Artist a = new Artist();
-
-            a.discogsId = oldArtist.discogsId;
-            a.name = oldArtist.name;
-            JSONArray images = jsonObject.optJSONArray("images");
-            JSONObject image0 = images == null ? null :
-                    images.optJSONObject(0);
-            a.imgUrl = image0 == null ? "" :
-                    image0.optString("uri", "");
-            a.profile = jsonObject.optString("profile", "");
-
-            adf.setArtist(a);
-        }
-    }
-
     private class DiscogsGetReleaseDetailsTask extends AsyncTask<Integer, Void, JSONObject>
     {
         private static final String baseURL = "https://api.discogs.com/";
@@ -499,7 +392,7 @@ public class HomeActivity extends AppCompatActivity
             {
                 StringBuilder queryURLBuilder = new StringBuilder(baseURL + "releases/" + integers[0].toString());
                 Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
+                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
             }
 
             return jsonResult;
@@ -590,7 +483,7 @@ public class HomeActivity extends AppCompatActivity
                         queryURLBuilder.append("&");
                 }
                 Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = getResponseFromDiscogs(queryURLBuilder.toString(), authToken);
+                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
             }
 
             boolean isArtists = true;
@@ -760,25 +653,9 @@ public class HomeActivity extends AppCompatActivity
 
     public void changeToDetailArtistView(Artist artist)
     {
-        ArtistDetailFragment adf = new ArtistDetailFragment();
-
-        Artist testArtist = new Artist();
-        testArtist.name = "TEST";
-        testArtist.imgUrl = "";
-        ArtistDetailFragment testFragment = new ArtistDetailFragment();
-        testFragment.setArtist(testArtist);
-
-        Artist addArtist = artist;
-        adf.setArtist(addArtist);
-
-        new DiscogsGetArtistDetailsTask(adf).execute(artist.discogsId);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.home_content_area, adf, ArtistDetailFragment.class.getSimpleName())
-                .add(    R.id.home_content_area, testFragment, ArtistDetailFragment.class.getSimpleName())
-                .addToBackStack(null)
-                .commit();
+        Intent intent = new Intent(this, ArtistDetailActivity.class);
+        intent.putExtra(ArtistDetailActivity.ARTIST_ID_EXTRA, artist.discogsId);
+        startActivity(intent);
     }
 
     public String getCurrentView()
