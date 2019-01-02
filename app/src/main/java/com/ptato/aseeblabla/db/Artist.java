@@ -10,4 +10,5 @@ public class Artist
     public String name;
     public String profile;
     public String imgUrl;
+    public String url;
 }

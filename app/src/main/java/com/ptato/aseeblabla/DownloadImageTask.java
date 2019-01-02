@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import java.io.InputStream;
@@ -34,5 +35,11 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap>
     }
 
     @Override
-    protected void onPostExecute(Bitmap bitmap) { imageView.setImageBitmap(bitmap); }
+    protected void onPostExecute(Bitmap bitmap)
+    {
+        if (bitmap != null)
+            imageView.setImageBitmap(bitmap);
+        else
+            imageView.setVisibility(View.GONE);
+    }
 }

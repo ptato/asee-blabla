@@ -58,10 +58,15 @@ public class ArtistDetailActivity extends AppCompatActivity
             ImageView artistImage = findViewById(R.id.detail_artist_image);
             TextView artistName = findViewById(R.id.detail_artist_name);
             TextView artistProfile = findViewById(R.id.detail_artist_profile);
+            TextView artistUrl = findViewById(R.id.detail_artist_url);
 
             artistName.setText(artist.name);
             artistProfile.setText(artist.profile);
             new DownloadImageTask(artistImage).execute(artist.imgUrl);
+            if (artist.url != null)
+                artistUrl.setText(artist.url);
+            else
+                artistUrl.setVisibility(View.GONE);
         }
     }
 }

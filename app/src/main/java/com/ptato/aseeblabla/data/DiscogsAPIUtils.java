@@ -83,6 +83,8 @@ public class DiscogsAPIUtils
             a.imgUrl = image0 == null ? "" :
                     image0.optString("uri", "");
             a.profile = jsonObject.optString("profile", "");
+            JSONArray urls = jsonObject.optJSONArray("urls");
+            a.url = urls == null ? null : urls.optString(0, null);
 
             liveData.setValue(a);
         }
