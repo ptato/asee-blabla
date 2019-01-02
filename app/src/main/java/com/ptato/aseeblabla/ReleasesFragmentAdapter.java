@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ptato.aseeblabla.db.Release;
+import com.ptato.aseeblabla.data.db.Release;
 
 import java.util.ArrayList;
 import java.util.List;

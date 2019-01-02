@@ -25,11 +25,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ptato.aseeblabla.data.DiscogsAPIUtils;
-import com.ptato.aseeblabla.db.AppDatabase;
-import com.ptato.aseeblabla.db.Artist;
-import com.ptato.aseeblabla.db.Release;
-import com.ptato.aseeblabla.db.ReleaseDAO;
+import com.ptato.aseeblabla.data.db.AppDatabase;
+import com.ptato.aseeblabla.data.db.Artist;
+import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.data.db.ReleaseDAO;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
+import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,7 +56,6 @@ public class HomeActivity extends AppCompatActivity
         @Override public void onClick(Artist a) { changeToDetailArtistView(a); }
     }
 
-    FloatingActionButton fab = null;
     MenuItem searchItem = null;
     MenuItem deleteItem = null;
 
@@ -67,41 +67,6 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (getCurrentView().equals(ReleaseDetailFragment.class.getSimpleName()))
-                {
-                    ReleaseDetailFragment rdf =
-                            (ReleaseDetailFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                    Release newRelease = rdf.getRelease();
-
-                    if (userReleases.contains(newRelease))
-                    {
-                        userReleases.set(userReleases.indexOf(newRelease), newRelease);
-                        Snackbar.make(view, newRelease.title + " editado.", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    } else
-                    {
-                        userReleases.add(newRelease);
-                        setFABModeEdit();
-                        Snackbar.make(view, newRelease.title + " se ha añadido.", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-
-
-                } else
-                {
-                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            }
-        });
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -176,10 +141,6 @@ public class HomeActivity extends AppCompatActivity
 
                 } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
                 {
-                    if (getCurrentView().equals(ReleaseDetailFragment.class.getSimpleName()))
-                    {
-                        setFABModeAdd();
-                    }
                     fm.popBackStack();
                 } else
                 {
@@ -266,13 +227,7 @@ public class HomeActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_delete)
         {
-            if (getCurrentView().equals(ReleaseDetailFragment.class.getSimpleName()))
-            {
-                ReleaseDetailFragment rdf = (ReleaseDetailFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                Release deleteRelease = rdf.getRelease();
-                userReleases.remove(deleteRelease);
-                getSupportFragmentManager().popBackStack();
-            }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -369,74 +324,6 @@ public class HomeActivity extends AppCompatActivity
             }
 
             srf.setReleases(releasesResult);
-        }
-    }
-
-    private class DiscogsGetReleaseDetailsTask extends AsyncTask<Integer, Void, JSONObject>
-    {
-        private static final String baseURL = "https://api.discogs.com/";
-        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
-        private ReleaseDetailFragment rdf;
-
-        public DiscogsGetReleaseDetailsTask(ReleaseDetailFragment _rdf)
-        {
-            rdf = _rdf;
-        }
-
-        @Override
-        protected JSONObject doInBackground(Integer... integers)
-        {
-            JSONObject jsonResult = null;
-
-            if (integers.length > 0)
-            {
-                StringBuilder queryURLBuilder = new StringBuilder(baseURL + "releases/" + integers[0].toString());
-                Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
-            }
-
-            return jsonResult;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject)
-        {
-            super.onPostExecute(jsonObject);
-
-            Release r = new Release();
-            r.discogsId = jsonObject.optInt("id", -1);
-            r.title = jsonObject.optString("title", "Unknown Title");
-            r.year = Integer.toString(jsonObject.optInt("year", 0));
-            r.thumbUrl = jsonObject.optString("thumb", "");
-            r.country = jsonObject.optString("country", "");
-
-            JSONArray array = jsonObject.optJSONArray("artists");
-            JSONObject artistObject = array == null ? null : array.optJSONObject(0);
-            r.artist = artistObject == null ? "Unknown Artist" :
-                    artistObject.optString("name", "Unknown Artist");
-            r.artistId = artistObject == null ? -1 :
-                    artistObject.optInt("id", -1);
-
-            JSONObject community = jsonObject.optJSONObject("community");
-            JSONObject rating = community == null ? null : community.optJSONObject("rating");
-            r.communityStars = rating == null ? 0 : (int)Math.round(rating.optDouble("average", 0));
-
-            JSONArray images = jsonObject.optJSONArray("images");
-            JSONObject image0 = images == null ? null : images.optJSONObject(0);
-            r.imageUrl = image0 == null ? "" : image0.optString("uri", "");
-
-            JSONArray genres = jsonObject.optJSONArray("genres");
-            JSONArray styles = jsonObject.optJSONArray("styles");
-            StringBuilder builder = new StringBuilder();
-            if (genres != null)
-                for (int i = 0; i < genres.length(); ++i)
-                   builder.append(genres.optString(i, "unknown") + ", ");
-            if (styles != null)
-                for (int i = 0; i < styles.length(); ++i)
-                    builder.append(styles.optString(i, "unknown") + ", ");
-            r.genres = builder.toString().substring(0, builder.toString().length() - 2);
-
-            rdf.setRelease(r);
         }
     }
 
@@ -591,7 +478,6 @@ public class HomeActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.home_content_area, searchReleasesFragment, SearchReleasesFragment.class.getSimpleName());
         if (addToBackStack) replace.addToBackStack(null);
-        setFABModeInvisible();
         replace.commit();
         return searchReleasesFragment;
     }
@@ -607,7 +493,6 @@ public class HomeActivity extends AppCompatActivity
                 .replace(R.id.home_content_area, urf, UserReleasesFragment.class.getSimpleName());
         if (addToBackStack) replace.addToBackStack(null);
         replace.commit();
-        setFABModeAdd();
         return urf;
     }
 
@@ -620,35 +505,13 @@ public class HomeActivity extends AppCompatActivity
                 .replace(R.id.home_content_area, artistsFragment, ArtistsFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
-        setFABModeInvisible();
     }
 
     public void changeToDetailReleaseView(Release release)
     {
-        ReleaseDetailFragment releaseDetailFragment = new ReleaseDetailFragment();
-
-        Release addRelease = release;
-        if (userReleases.contains(release))
-            addRelease = userReleases.get(userReleases.indexOf(release));
-        releaseDetailFragment.setRelease(addRelease);
-
-
-        if (getCurrentView().equals(SearchReleasesFragment.class.getSimpleName()))
-            new DiscogsGetReleaseDetailsTask(releaseDetailFragment).execute(release.discogsId);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.home_content_area, releaseDetailFragment, ReleaseDetailFragment.class.getSimpleName())
-                .addToBackStack(null)
-                .commit();
-
-        if (userReleases.contains(release))
-        {
-            setFABModeEdit();
-        } else
-        {
-            setFABModeAdd();
-        }
+        Intent intent = new Intent(this, ReleaseDetailActivity.class);
+        intent.putExtra(ReleaseDetailActivity.RELEASE_ID_EXTRA, release.discogsId);
+        startActivity(intent);
     }
 
     public void changeToDetailArtistView(Artist artist)
@@ -669,23 +532,6 @@ public class HomeActivity extends AppCompatActivity
     public List<Release> getUserReleases()
     {
         return userReleases;
-    }
-
-    public void setFABModeAdd()
-    {
-        fab.setImageResource(R.mipmap.plus);
-        fab.show();
-    }
-
-    public void setFABModeEdit()
-    {
-        fab.setImageResource(R.drawable.ic_menu_gallery);
-        fab.show();
-    }
-
-    public void setFABModeInvisible()
-    {
-        fab.hide();
     }
 
     public void disableSearch() { if (searchItem != null) searchItem.setVisible(false); }

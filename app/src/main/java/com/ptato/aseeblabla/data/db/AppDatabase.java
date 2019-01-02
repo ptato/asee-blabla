@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.db;
+package com.ptato.aseeblabla.data.db;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
@@ -13,7 +13,7 @@ public abstract class AppDatabase extends RoomDatabase
     {
         if (instance == null)
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    AppDatabase.class, "app.db").build();
+                    AppDatabase.class, "app.db").allowMainThreadQueries().build();
         return instance;
     }
 

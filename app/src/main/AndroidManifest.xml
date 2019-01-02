@@ -29,9 +29,17 @@
 
         <activity
             android:name=".ui.detail.artist.ArtistDetailActivity"
-            android:label="moonwave/artist">
+            android:label="moonwave/artist"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".HomeActivity">
         </activity>
 
+        <activity
+            android:name=".ui.detail.release.ReleaseDetailActivity"
+            android:label="moonwave/release"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".HomeActivity">
+        </activity>
 
     </application>
 

@@ -1,5 +1,6 @@
-package com.ptato.aseeblabla.db;
+package com.ptato.aseeblabla.data.db;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -19,4 +20,9 @@ public interface ReleaseDAO
     void deleteReleases(List<Release> releases);
     @Query("SELECT * FROM releases")
     List<Release> getAll();
+
+    @Query("SELECT * FROM releases WHERE discogsId = :id")
+    LiveData<Release> getReleaseOfId(int id);
+    @Query("SELECT count(*) FROM releases WHERE discogsId = :id")
+    int getReleaseCountOfId(int id);
 }

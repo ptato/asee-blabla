@@ -1,10 +1,8 @@
-package com.ptato.aseeblabla.db;
+package com.ptato.aseeblabla.data.db;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 @Entity(tableName = "releases")

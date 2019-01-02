@@ -1,68 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.detail.artist.ArtistDetailActivity">
 
-    <ImageView
-        android:id="@+id/detail_artist_image"
-        android:layout_width="277dp"
-        android:layout_height="162dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
-        tools:srcCompat="@tools:sample/avatars" />
-
-    <TextView
-        android:id="@+id/detail_artist_name"
-        android:layout_width="360dp"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/detail_artist_image"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/default_artist_name"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <TextView
-        android:id="@+id/detail_artist_url"
-        android:layout_width="332dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/detail_artist_profile"
-        android:layout_alignStart="@+id/detail_artist_image"
-        android:layout_marginStart="-23dp"
-        android:layout_marginTop="4dp"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:text="URL"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textSize="14sp" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-    <TextView
-        android:id="@+id/detail_artist_profile"
-        android:layout_width="306dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/detail_artist_name"
-        android:layout_alignStart="@+id/detail_artist_name"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="6dp"
-        android:text="No profile available"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textSize="16sp" />
+    </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:id="@+id/detail_artist_view_releases"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="25dp"
-        android:layout_marginBottom="32dp"
-        android:text="View Releases" />
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/detail_artist_image"
+            android:layout_width="277dp"
+            android:layout_height="162dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/detail_artist_name"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_artist_image"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/default_artist_name"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/detail_artist_url"
+            android:layout_width="332dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_artist_profile"
+            android:layout_alignStart="@+id/detail_artist_image"
+            android:layout_marginStart="-23dp"
+            android:layout_marginTop="4dp"
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="URL"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/detail_artist_profile"
+            android:layout_width="306dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_artist_name"
+            android:layout_alignStart="@+id/detail_artist_name"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="6dp"
+            android:text="No profile available"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/detail_artist_view_releases"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="32dp"
+            android:text="View Releases" />
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

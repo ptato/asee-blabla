@@ -1,150 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.detail.artist.ArtistDetailActivity">
 
-    <ImageView
-        android:id="@+id/detail_release_thumb"
-        android:layout_width="158dp"
-        android:layout_height="151dp"
-        android:layout_alignEnd="@+id/detail_estrellas_label"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="-49dp"
-        tools:srcCompat="@tools:sample/avatars" />
-
-    <TextView
-        android:id="@+id/detail_release_title"
-        android:layout_width="338dp"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/detail_release_thumb"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="-100dp"
-        android:layout_marginTop="172dp"
-        android:text="@string/default_release_title"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textSize="18sp" />
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <TextView
-        android:id="@+id/detail_release_artist"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:id="@+id/detail_release_thumb"
+            android:layout_width="168dp"
+            android:layout_height="162dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="11dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/detail_release_title"
+            android:layout_width="338dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_release_thumb"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/default_release_title"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/detail_release_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_release_title"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/default_artist_name"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/detail_release_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/detail_release_artist"
+            android:layout_marginStart="19dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="-1dp"
+            android:layout_toEndOf="@+id/detail_release_artist"
+            android:text="@string/release_separator" />
+
+        <TextView
+            android:id="@+id/detail_release_year"
+            android:layout_width="157dp"
+            android:layout_height="20dp"
+            android:layout_alignTop="@+id/detail_release_artist"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="13dp"
+            android:layout_toEndOf="@+id/detail_release_separator"
+            android:text="@string/default_release_year"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <EditText
+            android:id="@+id/detail_estrellas_number"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginBottom="171dp"
+            android:ems="10"
+            android:inputType="number"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/detail_estrellas_label"
+            android:layout_width="163dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="173dp"
+            android:layout_toEndOf="@+id/detail_estrellas_number"
+            android:text="estrellas"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/release_detail_country_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_release_artist"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="9dp"
+            android:text="Country:" />
+
+        <TextView
+            android:id="@+id/release_detail_genres_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/release_detail_country_label"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="10dp"
+            android:text="Genres:" />
+
+        <TextView
+            android:id="@+id/release_detail_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_release_artist"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="9dp"
+            android:layout_toEndOf="@+id/release_detail_country_label"
+            android:text="DEFAULT COUNTRY"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/release_detail_genres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/release_detail_genres_label"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@+id/release_detail_genres_label"
+            android:text="DEFAULT GENRES"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/release_detail_review_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/detail_estrellas_label"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="-152dp"
+            android:text="Review:" />
+
+        <EditText
+            android:id="@+id/release_detail_review"
+            android:layout_width="336dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/release_detail_review_label"
+            android:layout_alignStart="@+id/release_detail_review_label"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="2dp"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:selectAllOnFocus="false"
+            android:singleLine="false"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="208dp"
-        android:text="@string/default_artist_name"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-    <TextView
-        android:id="@+id/detail_release_separator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/detail_release_title"
-        android:layout_marginStart="19dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="-1dp"
-        android:layout_toEndOf="@+id/detail_release_artist"
-        android:text="@string/release_separator" />
-
-    <TextView
-        android:id="@+id/detail_release_year"
-        android:layout_width="157dp"
-        android:layout_height="20dp"
-        android:layout_alignTop="@+id/detail_release_artist"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="-2dp"
-        android:layout_marginEnd="14dp"
-        android:text="@string/default_release_year"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-    <EditText
-        android:id="@+id/detail_estrellas_number"
-        android:layout_width="44dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="157dp"
-        android:ems="10"
-        android:inputType="number"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-    <TextView
-        android:id="@+id/detail_estrellas_label"
-        android:layout_width="163dp"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginBottom="152dp"
-        android:layout_toEndOf="@+id/detail_estrellas_number"
-        android:text="estrellas"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/release_detail_country_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/detail_release_artist"
-        android:layout_centerVertical="true"
-        android:text="Country:" />
-
-    <TextView
-        android:id="@+id/release_detail_genres_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/detail_release_artist"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="214dp"
-        android:text="Genres:" />
-
-    <TextView
-        android:id="@+id/release_detail_country"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/detail_release_title"
-        android:layout_alignTop="@+id/release_detail_country_label"
-        android:layout_marginStart="62dp"
-        android:layout_marginTop="1dp"
-        android:text="DEFAULT COUNTRY"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-    <TextView
-        android:id="@+id/release_detail_genres"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/detail_release_title"
-        android:layout_alignTop="@+id/release_detail_genres_label"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="0dp"
-        android:text="DEFAULT GENRES"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-    <TextView
-        android:id="@+id/release_detail_review_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/detail_estrellas_label"
-        android:layout_alignStart="@+id/detail_release_title"
-        android:layout_marginTop="-152dp"
-        android:text="Review:" />
-
-    <EditText
-        android:id="@+id/release_detail_review"
-        android:layout_width="336dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/release_detail_review_label"
-        android:layout_alignStart="@+id/detail_release_title"
-        android:layout_marginStart="-1dp"
-        android:layout_marginTop="3dp"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:selectAllOnFocus="false"
-        android:singleLine="false"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
-
-</RelativeLayout>
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@mipmap/plus" />
+</android.support.design.widget.CoordinatorLayout>

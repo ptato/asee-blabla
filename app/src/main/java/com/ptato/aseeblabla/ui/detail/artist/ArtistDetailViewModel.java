@@ -6,15 +6,15 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
 import com.ptato.aseeblabla.data.Repository;
-import com.ptato.aseeblabla.db.Artist;
+import com.ptato.aseeblabla.data.db.Artist;
 
 public class ArtistDetailViewModel extends ViewModel
 {
     private LiveData<Artist> artistData;
 
-    public ArtistDetailViewModel(int id)
+    public ArtistDetailViewModel(Repository repository, int id)
     {
-        artistData = Repository.getInstance().getArtist(id);
+        artistData = repository.getArtist(id);
     }
 
     public LiveData<Artist> getArtist()
@@ -24,13 +24,19 @@ public class ArtistDetailViewModel extends ViewModel
 
     public static class Factory extends ViewModelProvider.NewInstanceFactory
     {
+        Repository repository;
         int id;
-        public Factory(int a) { id = a; }
+        public Factory(Repository re, int a)
+        {
+            repository = re;
+            id = a;
+        }
 
         @NonNull @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass)
         {
-            return (T) new ArtistDetailViewModel(id);
+            // noinspection unchecked
+            return (T) new ArtistDetailViewModel(repository, id);
         }
     }
 }

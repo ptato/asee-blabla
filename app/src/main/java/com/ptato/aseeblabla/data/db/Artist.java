@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.db;
+package com.ptato.aseeblabla.data.db;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;

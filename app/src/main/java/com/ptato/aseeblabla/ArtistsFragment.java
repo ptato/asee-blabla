@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ptato.aseeblabla.db.Artist;
+import com.ptato.aseeblabla.data.db.Artist;
 
 import java.util.ArrayList;
 import java.util.List;

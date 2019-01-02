@@ -1,19 +1,23 @@
 package com.ptato.aseeblabla.ui.detail.artist;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
+
 
 import com.ptato.aseeblabla.DownloadImageTask;
 import com.ptato.aseeblabla.R;
-import com.ptato.aseeblabla.db.Artist;
+import com.ptato.aseeblabla.data.Repository;
+import com.ptato.aseeblabla.data.db.Artist;
 
 public class ArtistDetailActivity extends AppCompatActivity
 {
@@ -25,8 +29,15 @@ public class ArtistDetailActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_detail);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
+
         int artistId = getIntent().getIntExtra(ARTIST_ID_EXTRA, -1);
-        ArtistDetailViewModel.Factory factory = new ArtistDetailViewModel.Factory(artistId);
+        Repository repository = Repository.getInstance(this);
+        ArtistDetailViewModel.Factory factory = new ArtistDetailViewModel.Factory(repository, artistId);
         ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
         viewModel.getArtist().observe(this, new Observer<Artist>()
         {
@@ -49,6 +60,13 @@ public class ArtistDetailActivity extends AppCompatActivity
                 */
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.detail, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void bindArtistToUi(Artist artist)
