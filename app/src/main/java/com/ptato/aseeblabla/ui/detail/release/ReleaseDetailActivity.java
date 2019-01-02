@@ -2,6 +2,7 @@ package com.ptato.aseeblabla.ui.detail.release;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +22,7 @@ import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailViewModel;
 
 public class ReleaseDetailActivity extends AppCompatActivity
@@ -88,6 +90,19 @@ public class ReleaseDetailActivity extends AppCompatActivity
             genresView.setText(release.genres);
 
             reviewEdit.setText(release.review);
+
+
+            artistView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Intent intent = new Intent(ReleaseDetailActivity.this, ArtistDetailActivity.class);
+                    intent.putExtra(ArtistDetailActivity.ARTIST_ID_EXTRA, release.artistId);
+                    startActivity(intent);
+                }
+            });
+
 
             FloatingActionButton fab = findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener()
