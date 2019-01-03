@@ -13,7 +13,7 @@ import com.ptato.aseeblabla.data.db.Release;
 import java.util.ArrayList;
 import java.util.List;
 
-class ReleasesFragmentAdapter extends RecyclerView.Adapter<ReleasesFragmentAdapter.ViewHolder>
+public class ReleasesFragmentAdapter extends RecyclerView.Adapter<ReleasesFragmentAdapter.ViewHolder>
 {
 
     public interface OnClickReleaseListener

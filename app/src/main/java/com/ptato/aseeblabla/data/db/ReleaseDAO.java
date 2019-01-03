@@ -19,7 +19,7 @@ public interface ReleaseDAO
     @Delete
     void deleteReleases(List<Release> releases);
     @Query("SELECT * FROM releases")
-    List<Release> getAll();
+    LiveData<List<Release>> getAll();
 
     @Query("SELECT * FROM releases WHERE discogsId = :id")
     LiveData<Release> getReleaseOfId(int id);

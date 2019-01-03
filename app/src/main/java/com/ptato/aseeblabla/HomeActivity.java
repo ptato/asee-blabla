@@ -28,6 +28,7 @@ import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.data.db.ReleaseDAO;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
+import com.ptato.aseeblabla.ui.list.UserReleasesFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,8 +41,6 @@ import java.util.Objects;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
-    public List<Release> userReleases;
-
     public class OpenReleaseDetailListener implements ReleasesFragmentAdapter.OnClickReleaseListener
     {
         @Override public void onClick(Release release)
@@ -77,40 +76,6 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         final UserReleasesFragment urf = changeToUserReleaseView(false);
-        userReleases = new ArrayList<>();
-        new AsyncTask<Context, Void, List<Release>>() {
-            @Override
-            protected List<Release> doInBackground(Context ... contexts)
-            {
-                AppDatabase db = AppDatabase.getInstance(contexts[0]);
-                userReleases = db.releaseDAO().getAll();
-                return userReleases;
-            }
-
-            @Override
-            protected void onPostExecute(List<Release> releases)
-            {
-                if (urf != null) urf.setReleases(releases);
-            }
-        }.execute(this);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-
-        new AsyncTask<Context, Void, Void>() {
-            @Override
-            protected Void doInBackground(Context... contexts)
-            {
-                ReleaseDAO releaseDAO = AppDatabase.getInstance(contexts[0]).releaseDAO();
-                List<Release> existingReleases = releaseDAO.getAll();
-                releaseDAO.deleteReleases(existingReleases);
-                releaseDAO.insertReleases(userReleases);
-                return null;
-            }
-        }.execute(this);
     }
 
     @Override
@@ -292,7 +257,6 @@ public class HomeActivity extends AppCompatActivity
             super.onPostExecute(jsonObject);
 
             List<Release> releasesResult = new ArrayList<>();
-            List<Release> userReleases = ha.getUserReleases();
 
             if (jsonObject != null)
             {
@@ -306,15 +270,11 @@ public class HomeActivity extends AppCompatActivity
                         {
                             Release release = new Release();
                             release.discogsId = object.optInt("id", -1);
-                            if (userReleases.contains(release))
-                            {
-                                release = userReleases.get(userReleases.indexOf(release));
-                            } else
-                            {
-                                release.title = object.optString("title", "Unknown Title");
-                                release.thumbUrl = object.optString("thumb", "");
-                                release.year = Integer.toString(object.optInt("year", 0));
-                            }
+
+                            release.title = object.optString("title", "Unknown Title");
+                            release.thumbUrl = object.optString("thumb", "");
+                            release.year = Integer.toString(object.optInt("year", 0));
+
                             releasesResult.add(release);
                         }
 
@@ -486,7 +446,7 @@ public class HomeActivity extends AppCompatActivity
     {
         UserReleasesFragment urf = new UserReleasesFragment();
         urf.setItemOnClickListener(new OpenReleaseDetailListener());
-        urf.setReleases(userReleases);
+        // urf.setReleases(userReleases);
         FragmentTransaction replace = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, urf, UserReleasesFragment.class.getSimpleName());
@@ -526,10 +486,5 @@ public class HomeActivity extends AppCompatActivity
         Fragment f = fm.findFragmentById(R.id.home_content_area);
         String name = f != null ? f.getClass().getSimpleName() : "";
         return name;
-    }
-
-    public List<Release> getUserReleases()
-    {
-        return userReleases;
     }
 }

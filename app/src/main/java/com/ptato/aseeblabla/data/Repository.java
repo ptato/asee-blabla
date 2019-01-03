@@ -59,6 +59,12 @@ public class Repository
         return dao.getReleaseCountOfId(id) > 0;
     }
 
+    public LiveData<List<Release>> getUserReleases()
+    {
+        ReleaseDAO dao = database.releaseDAO();
+        return dao.getAll();
+    }
+
     public LiveData<Artist> getArtist(int id)
     {
         return DiscogsAPIUtils.getArtist(id);
