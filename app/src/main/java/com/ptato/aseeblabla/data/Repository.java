@@ -62,10 +62,10 @@ public class Repository
         dao.deleteReleases(deleteThis);
     }
 
-    public boolean isReleaseSavedByUser(int id)
+    public LiveData<Integer> getUserReleaseCountWithId(int id)
     {
         ReleaseDAO dao = database.releaseDAO();
-        return dao.getReleaseCountOfId(id) > 0;
+        return dao.getCoolReleaseCountOfId(id);
     }
 
     public LiveData<List<Release>> getUserReleases()

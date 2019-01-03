@@ -103,49 +103,74 @@ public class ReleaseDetailActivity extends AppCompatActivity
                 }
             });
 
-            Button saveButton = findViewById(R.id.release_save_button);
-            Button deleteButton = findViewById(R.id.release_delete_button);
+            final Button saveButton = findViewById(R.id.release_save_button);
+            final Button deleteButton = findViewById(R.id.release_delete_button);
 
-            if(viewModel.isReleaseSavedByUser())
+            viewModel.isReleaseSavedByUser().observe(this, new Observer<Integer>()
             {
-                saveButton.setOnClickListener(new View.OnClickListener()
+                @Override
+                public void onChanged(@Nullable Integer saved)
                 {
-                    @Override
-                    public void onClick(View v)
+                    if (saved == null)
                     {
-                        release.stars = Integer.parseInt(starsEdit.getText().toString());
-                        release.review = reviewEdit.getText().toString();
-                        repository.insertOrUpdateRelease(release);
-                        Snackbar.make(v, release.title + " ha sido editado", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-                });
-                deleteButton.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
+                        saveButton.setVisibility(View.GONE);
+                        deleteButton.setVisibility(View.GONE);
+                    } else if (saved > 0)
                     {
-                        new AlertDialog.Builder(ReleaseDetailActivity.this)
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setTitle("Borrar")
-                                .setMessage("¿De verdad quieres borrar '" + release.title + "'?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        repository.deleteRelease(release);
-                                        finish();
-                                    }
-                                }).setNegativeButton("No", null)
-                                .show();
+                        saveButton.setVisibility(View.VISIBLE);
+                        deleteButton.setVisibility(View.VISIBLE);
+                        saveButton.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                release.stars = Integer.parseInt(starsEdit.getText().toString());
+                                release.review = reviewEdit.getText().toString();
+                                repository.insertOrUpdateRelease(release);
+                                Snackbar.make(v, release.title + " ha sido editado", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+                        });
+                        deleteButton.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                new AlertDialog.Builder(ReleaseDetailActivity.this)
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setTitle("Borrar")
+                                        .setMessage("¿De verdad quieres borrar '" + release.title + "'?")
+                                        .setPositiveButton("Sí", new DialogInterface.OnClickListener()
+                                        {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which)
+                                            {
+                                                repository.deleteRelease(release);
+                                                finish();
+                                            }
+                                        }).setNegativeButton("No", null)
+                                        .show();
+                            }
+                        });
+                    } else
+                    {
+                        saveButton.setVisibility(View.VISIBLE);
+                        deleteButton.setVisibility(View.GONE);
+                        saveButton.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                release.stars = Integer.parseInt(starsEdit.getText().toString());
+                                release.review = reviewEdit.getText().toString();
+                                repository.insertOrUpdateRelease(release);
+                                Snackbar.make(v, release.title + " ha sido añadido", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+                        });
                     }
-                });
-            } else
-            {
-                Snackbar.make(saveButton, "Luego lo arreglo", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
+                }
+            });
         }
     }
 }
