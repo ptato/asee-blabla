@@ -22,10 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ptato.aseeblabla.data.DiscogsAPIUtils;
-import com.ptato.aseeblabla.data.db.AppDatabase;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
-import com.ptato.aseeblabla.data.db.ReleaseDAO;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
 import com.ptato.aseeblabla.ui.list.UserReleasesFragment;
@@ -54,10 +52,6 @@ public class HomeActivity extends AppCompatActivity
         @Override public void onClick(Artist a) { changeToDetailArtistView(a); }
     }
 
-    MenuItem searchItem = null;
-    MenuItem deleteItem = null;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -75,7 +69,7 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final UserReleasesFragment urf = changeToUserReleaseView(false);
+        changeToUserReleaseView(false);
     }
 
     @Override
@@ -122,9 +116,6 @@ public class HomeActivity extends AppCompatActivity
     {
         getMenuInflater().inflate(R.menu.home, menu);
 
-        searchItem = menu.findItem(R.id.action_search);
-        deleteItem = menu.findItem(R.id.action_delete);
-
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         if (searchManager != null)
@@ -146,6 +137,7 @@ public class HomeActivity extends AppCompatActivity
                         return true;
                     } else if (getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
                     {
+                        // noinspection unchecked
                         new DiscogsSearchQueryTask().execute(
                                 Pair.create(DiscogsSearchQueryTask.TYPE, DiscogsSearchQueryTask.TYPE_ARTIST),
                                 Pair.create(DiscogsSearchQueryTask.COMBINED_TITLE, s));
@@ -155,7 +147,7 @@ public class HomeActivity extends AppCompatActivity
                     } else if (getCurrentView().equals(UserReleasesFragment.class.getSimpleName()))
                     {
                         Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                        ((UserReleasesFragment)f).setSearchQuery(s);
+                        if (f != null) ((UserReleasesFragment)f).setSearchQuery(s);
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                     }
@@ -189,15 +181,11 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.action_settings)
         {
             return true;
-        } else if (id == R.id.action_delete)
-        {
-
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {

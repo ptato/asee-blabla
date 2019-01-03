@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,9 @@ public class UserReleasesFragment extends Fragment
     private TextView emptyTextView = null;
     private boolean isUsingSearchResultsValue;
 
+    private UserReleasesViewModel viewModel = null;
+    private String searchQuery = null;
+
     public void setItemOnClickListener(ReleasesFragmentAdapter.OnClickReleaseListener listener)
     {
         itemOnClickListener = listener;
@@ -37,33 +41,45 @@ public class UserReleasesFragment extends Fragment
 
     public void setSearchQuery(String query)
     {
-//        List<Release> searchResultReleases = new ArrayList<>();
-//        String lowerQuery = query.toLowerCase();
-//        for (Release r: persistReleases)
-//        {
-//            if(r.title.toLowerCase().contains(lowerQuery) || r.artist.contains(lowerQuery))
-//            {
-//                searchResultReleases.add(r);
-//            }
-//        }
-//
-//        updateAdapter(searchResultReleases);
-//        isUsingSearchResultsValue = true;
+        searchQuery = query;
+        if (viewModel != null)
+            updateAdapter(viewModel.getUserReleases().getValue());
+        isUsingSearchResultsValue = true;
     }
 
     public void clearSearchQuery()
     {
-//        updateAdapter(persistReleases);
-//        isUsingSearchResultsValue = false;
+        searchQuery = null;
+        if (viewModel != null)
+            updateAdapter(viewModel.getUserReleases().getValue());
+        isUsingSearchResultsValue = false;
     }
 
     private void updateAdapter(List<Release> newReleases)
     {
+        List<Release> processedReleases = new ArrayList<>();
+        Log.i(this.getClass().getSimpleName(), "Updating Adapter");
+        if (searchQuery != null)
+        {
+            Log.i(this.getClass().getSimpleName(), "Search Query: " + (searchQuery==null?"'NULL'":searchQuery));
+            String lowerQuery = searchQuery.toLowerCase();
+            for (Release r: newReleases)
+            {
+                if(r.title.toLowerCase().contains(lowerQuery) || r.artist.contains(lowerQuery))
+                {
+                    processedReleases.add(r);
+                }
+            }
+        } else
+        {
+            processedReleases = newReleases;
+        }
+
         ReleasesFragmentAdapter rfa = recyclerView == null ?
                 null : (ReleasesFragmentAdapter)recyclerView.getAdapter();
         if (rfa != null)
         {
-            rfa.releases = newReleases;
+            rfa.releases = processedReleases;
             rfa.notifyDataSetChanged();
             if (newReleases.size() > 0)
                 emptyTextView.setVisibility(View.INVISIBLE);
@@ -82,12 +98,12 @@ public class UserReleasesFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        List<Release> testReleases = new ArrayList<>(); // TODO
-        recyclerView.setAdapter(new ReleasesFragmentAdapter(testReleases, itemOnClickListener));
+        recyclerView.setAdapter(new ReleasesFragmentAdapter(null, itemOnClickListener));
+        searchQuery = null;
         isUsingSearchResultsValue = false;
 
         emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
-        emptyTextView.setVisibility(testReleases.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -105,9 +121,9 @@ public class UserReleasesFragment extends Fragment
         {
             Repository repository = Repository.getInstance(activity);
             ListViewModelFactory factory = new ListViewModelFactory(repository);
-            UserReleasesViewModel userReleasesViewModel = ViewModelProviders.of(this, factory).get(UserReleasesViewModel.class);
+            viewModel = ViewModelProviders.of(this, factory).get(UserReleasesViewModel.class);
 
-            userReleasesViewModel.getUserReleases().observe(this, new Observer<List<Release>>()
+            viewModel.getUserReleases().observe(this, new Observer<List<Release>>()
             {
                 @Override
                 public void onChanged(@Nullable List<Release> releases)
