@@ -2,12 +2,13 @@ package com.ptato.aseeblabla.ui.detail.release;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,11 +21,9 @@ import android.widget.TextView;
 import com.ptato.aseeblabla.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
-import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.detail.DetailViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
-import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailViewModel;
 
 public class ReleaseDetailActivity extends AppCompatActivity
 {
@@ -104,31 +103,48 @@ public class ReleaseDetailActivity extends AppCompatActivity
                 }
             });
 
+            Button saveButton = findViewById(R.id.release_save_button);
+            Button deleteButton = findViewById(R.id.release_delete_button);
 
-            FloatingActionButton fab = findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener()
+            if(viewModel.isReleaseSavedByUser())
             {
-                @Override
-                public void onClick(View v)
+                saveButton.setOnClickListener(new View.OnClickListener()
                 {
-                    Release release = viewModel.getRelease().getValue();
-                    if (release != null && release.discogsId != -1)
+                    @Override
+                    public void onClick(View v)
                     {
                         release.stars = Integer.parseInt(starsEdit.getText().toString());
                         release.review = reviewEdit.getText().toString();
                         repository.insertOrUpdateRelease(release);
-                        Snackbar.make(v, "Hecho", Snackbar.LENGTH_LONG)
+                        Snackbar.make(v, release.title + " ha sido editado", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
-                        ((FloatingActionButton)v).setImageResource(R.drawable.ic_menu_gallery);
                     }
-                }
-            });
-            if (viewModel.isReleaseSavedByUser())
-            {
-                fab.setImageResource(R.drawable.ic_menu_gallery);
+                });
+                deleteButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        new AlertDialog.Builder(ReleaseDetailActivity.this)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setTitle("Borrar")
+                                .setMessage("¿De verdad quieres borrar '" + release.title + "'?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        repository.deleteRelease(release);
+                                        finish();
+                                    }
+                                }).setNegativeButton("No", null)
+                                .show();
+                    }
+                });
             } else
             {
-                fab.setImageResource(R.mipmap.plus);
+                Snackbar.make(saveButton, "Luego lo arreglo", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         }
     }

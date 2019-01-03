@@ -172,13 +172,25 @@
             android:singleLine="false"
             android:textAppearance="@style/TextAppearance.AppCompat" />
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/release_save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="22dp"
+            android:text="Guardar" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@mipmap/plus" />
+        <Button
+            android:id="@+id/release_delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="21dp"
+            android:layout_toStartOf="@+id/release_save_button"
+            android:text="Borrar" />
+
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

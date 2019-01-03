@@ -472,7 +472,6 @@ public class HomeActivity extends AppCompatActivity
     {
         FragmentManager fm = getSupportFragmentManager();
         Fragment f = fm.findFragmentById(R.id.home_content_area);
-        String name = f != null ? f.getClass().getSimpleName() : "";
-        return name;
+        return f != null ? f.getClass().getSimpleName() : "";
     }
 }

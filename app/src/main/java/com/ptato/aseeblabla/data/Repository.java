@@ -1,6 +1,7 @@
 package com.ptato.aseeblabla.data;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 
 import com.ptato.aseeblabla.data.db.AppDatabase;
@@ -51,6 +52,14 @@ public class Repository
             dao.updateReleases(releases);
         else
             dao.insertReleases(releases);
+    }
+
+    public void deleteRelease(Release release)
+    {
+        ReleaseDAO dao = database.releaseDAO();
+        List<Release> deleteThis = new ArrayList<>();
+        deleteThis.add(release);
+        dao.deleteReleases(deleteThis);
     }
 
     public boolean isReleaseSavedByUser(int id)

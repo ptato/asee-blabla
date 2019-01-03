@@ -25,4 +25,6 @@ public interface ReleaseDAO
     LiveData<Release> getReleaseOfId(int id);
     @Query("SELECT count(*) FROM releases WHERE discogsId = :id")
     int getReleaseCountOfId(int id);
+    @Query("SELECT count(*) FROM releases WHERE discogsId = :id")
+    LiveData<Integer> getCoolReleaseCountOfId(int id);
 }
