@@ -1,5 +1,7 @@
 package com.ptato.aseeblabla.ui.list.releases;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,14 +19,13 @@ import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
 import com.ptato.aseeblabla.data.db.Release;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SearchReleasesFragment extends Fragment
+public class ShowReleasesFragment extends Fragment
 {
     private RecyclerView recyclerView;
     private ReleasesFragmentAdapter.OnClickReleaseListener itemOnClickListener;
-    private List<Release> persistReleases = null;
-
     private TextView emptyTextView;
 
 
@@ -37,13 +38,9 @@ public class SearchReleasesFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-
-        recyclerView.setAdapter(new ReleasesFragmentAdapter(persistReleases, itemOnClickListener));
-
-
+        recyclerView.setAdapter(new ReleasesFragmentAdapter(new ArrayList<Release>(), itemOnClickListener));
         emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
-        emptyTextView.setVisibility(
-                persistReleases != null && persistReleases.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -52,32 +49,31 @@ public class SearchReleasesFragment extends Fragment
     }
 
 
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
-        HomeActivity a = (HomeActivity)getActivity();
-    }
-
-
     public void setItemOnClickListener(ReleasesFragmentAdapter.OnClickReleaseListener listener)
     {
         itemOnClickListener = listener;
     }
 
-    public void setReleases(List<Release> releases)
+    public void showReleases(LiveData<List<Release>> inputReleases)
     {
-        setReleases(releases, false);
+        if (inputReleases == null)
+            updateUi(null);
+        else
+            inputReleases.observe(this, new Observer<List<Release>>()
+            {
+                @Override
+                public void onChanged(@Nullable List<Release> releases)
+                {
+                    updateUi(releases);
+                }
+            });
     }
 
-    public void setReleases(List<Release> releases, boolean search)
+    private void updateUi(@Nullable List<Release> releases)
     {
-        persistReleases = releases;
-
         ReleasesFragmentAdapter rfa = recyclerView == null ?
                 null : (ReleasesFragmentAdapter)recyclerView.getAdapter();
-        if (rfa != null)
+        if (releases != null && rfa != null)
         {
             rfa.releases = releases;
             rfa.notifyDataSetChanged();
@@ -87,7 +83,7 @@ public class SearchReleasesFragment extends Fragment
                 emptyTextView.setVisibility(View.VISIBLE);
         }
 
-        if (releases.size() == 0)
+        if (releases == null || releases.size() == 0)
         {
             emptyTextView.setText(R.string.results_not_found);
             emptyTextView.setVisibility(View.VISIBLE);

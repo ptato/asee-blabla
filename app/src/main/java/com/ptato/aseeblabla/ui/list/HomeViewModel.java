@@ -6,7 +6,6 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
@@ -17,9 +16,10 @@ import java.util.List;
 public class HomeViewModel extends ViewModel
 {
     private final Repository repository;
-    private final MutableLiveData<String> searchQueryInput = new MutableLiveData<>();
-    private final LiveData<List<Artist>> artists =
-            Transformations.switchMap(searchQueryInput, new Function<String, LiveData<List<Artist>>>()
+
+    private final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
+    private final LiveData<List<Artist>> artistSearchResults =
+            Transformations.switchMap(artistSearchQueryInput, new Function<String, LiveData<List<Artist>>>()
             {
                 @Override
                 public LiveData<List<Artist>> apply(String input)
@@ -28,17 +28,37 @@ public class HomeViewModel extends ViewModel
                 }
             });
 
+    private final MutableLiveData<String> releaseSearchQueryInput = new MutableLiveData<>();
+    private final LiveData<List<Release>> releaseSearchResults =
+            Transformations.switchMap(releaseSearchQueryInput, new Function<String, LiveData<List<Release>>>()
+            {
+                @Override
+                public LiveData<List<Release>> apply(String input)
+                {
+                    return repository.searchReleases(input);
+                }
+            });
+
     public HomeViewModel(@NonNull Repository _repository)
     {
         repository = _repository;
     }
 
-    public LiveData<List<Artist>> getArtists()
+    public LiveData<List<Artist>> getArtistSearchResults()
     {
-        return artists;
+        return artistSearchResults;
     }
-    public void setSearchQuery(String query)
+    public void setArtistSearchQuery(String query)
     {
-        searchQueryInput.setValue(query);
+        artistSearchQueryInput.setValue(query);
+    }
+
+    public LiveData<List<Release>> getReleaseSearchResults()
+    {
+        return releaseSearchResults;
+    }
+    public void setReleaseSearchQuery(String query)
+    {
+        releaseSearchQueryInput.setValue(query);
     }
 }

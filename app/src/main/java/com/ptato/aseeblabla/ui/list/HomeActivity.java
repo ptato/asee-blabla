@@ -1,14 +1,12 @@
 package com.ptato.aseeblabla.ui.list;
 
 import android.app.SearchManager;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,7 +31,7 @@ import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
 import com.ptato.aseeblabla.ui.list.artists.ShowArtistsFragment;
-import com.ptato.aseeblabla.ui.list.releases.SearchReleasesFragment;
+import com.ptato.aseeblabla.ui.list.releases.ShowReleasesFragment;
 import com.ptato.aseeblabla.ui.list.user.UserReleasesFragment;
 
 import org.json.JSONArray;
@@ -100,20 +98,29 @@ public class HomeActivity extends AppCompatActivity
 
             if (f instanceof ShowArtistsFragment)
             {
-                if (((ShowArtistsFragment)f).getArtistCount() > 0)
+                // @NOTE: ShowArtistsFragment is (for now) only being used for showing
+                // artist search results. Which mean it's always showing artist search data we
+                // gave to it from our ViewModel.
+                List<Artist> artists = viewModel.getArtistSearchResults().getValue();
+                if (artists != null && artists.size() > 0)
                 {
-                    viewModel.setSearchQuery(null);
+                    viewModel.setArtistSearchQuery(null);
                     ((ShowArtistsFragment) f).showArtists(null);
                 } else
                 {
                     fm.popBackStack();
                 }
-            } else if (f instanceof UserReleasesFragment) {
+            } else if (f instanceof UserReleasesFragment)
+            {
                 if (((UserReleasesFragment)f).isUsingSearchResults())
                     ((UserReleasesFragment)f).clearSearchQuery();
                 else
                     fm.popBackStack();
 
+            } else if (f instanceof ShowReleasesFragment)
+            {
+                // @TODO: Need to un-show the results and go back to initial view of this tab
+                fm.popBackStack();
             } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
             {
                 fm.popBackStack();
@@ -146,24 +153,27 @@ public class HomeActivity extends AppCompatActivity
                     if (f instanceof ShowArtistsFragment)
                     {
                         Log.i(HomeActivity.this.getClass().getSimpleName(), "Buscando artistas '" + s + "'");
-                        viewModel.setSearchQuery(s);
-                        ((ShowArtistsFragment)f).showArtists(viewModel.getArtists());
+                        viewModel.setArtistSearchQuery(s);
+                        ((ShowArtistsFragment)f).showArtists(viewModel.getArtistSearchResults());
+
+                        searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                         return true;
-                    } else if (f instanceof SearchReleasesFragment)
+                    } else if (f instanceof ShowReleasesFragment)
                     {
-                        //noinspection unchecked
-                        new DiscogsSearchQueryTask().execute(
-                                Pair.create(DiscogsSearchQueryTask.TYPE, DiscogsSearchQueryTask.TYPE_RELEASE),
-                                Pair.create(DiscogsSearchQueryTask.COMBINED_TITLE, s));
+                        viewModel.setReleaseSearchQuery(s);
+                        ((ShowReleasesFragment)f).showReleases(viewModel.getReleaseSearchResults());
+
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                         return true;
                     } else if (f instanceof UserReleasesFragment)
                     {
                         ((UserReleasesFragment)f).setSearchQuery(s);
+
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
+                        return true;
                     }
 
                     return false;
@@ -207,12 +217,24 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-        if (id == R.id.nav_releases && !(f instanceof SearchReleasesFragment))
+        if (id == R.id.nav_releases && !(f instanceof ShowReleasesFragment))
         {
-            changeToSearchReleaseView();
+            ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
+            showReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.home_content_area, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
+                    .addToBackStack(null)
+                    .commit();
         } else if (id == R.id.nav_artists && !(f instanceof ShowArtistsFragment))
         {
-            changeToGeneralArtistView();
+            ShowArtistsFragment showArtistsFragment = new ShowArtistsFragment();
+            showArtistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.home_content_area, showArtistsFragment, ShowArtistsFragment.class.getSimpleName())
+                    .addToBackStack(null)
+                    .commit();
         } else if (id == R.id.nav_my_releases && !(f instanceof UserReleasesFragment))
         {
             changeToUserReleaseView();
@@ -222,15 +244,15 @@ public class HomeActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
+/*
     public static class DiscogsGetArtistReleasesTask extends AsyncTask<Integer, Void, JSONObject>
     {
         private static final String baseURL = "https://api.discogs.com/";
         private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
-        private SearchReleasesFragment srf;
+        private ShowReleasesFragment srf;
         private HomeActivity ha;
 
-        public DiscogsGetArtistReleasesTask(HomeActivity _ha, SearchReleasesFragment _srf)
+        public DiscogsGetArtistReleasesTask(HomeActivity _ha, ShowReleasesFragment _srf)
         {
             srf = _srf;
             ha = _ha;
@@ -287,6 +309,7 @@ public class HomeActivity extends AppCompatActivity
             srf.setReleases(releasesResult);
         }
     }
+    */
 
     private class DiscogsSearchQueryTask extends AsyncTask<Pair<String, String>, Void, JSONObject>
     {
@@ -408,9 +431,9 @@ public class HomeActivity extends AppCompatActivity
                             releases.add(r);
                         }
 /*
-                        if(getCurrentView().equals(SearchReleasesFragment.class.getSimpleName()))
+                        if(getCurrentView().equals(ShowReleasesFragment.class.getSimpleName()))
                         {
-                            SearchReleasesFragment rf = (SearchReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
+                            ShowReleasesFragment rf = (ShowReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
                             if (rf != null) rf.setReleases(releases, true);
                         }
                         */
@@ -422,19 +445,6 @@ public class HomeActivity extends AppCompatActivity
                 Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
             }
         }
-    }
-
-    public SearchReleasesFragment changeToSearchReleaseView() { return changeToSearchReleaseView(true);}
-    public SearchReleasesFragment changeToSearchReleaseView(boolean addToBackStack)
-    {
-        SearchReleasesFragment searchReleasesFragment = new SearchReleasesFragment();
-        searchReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
-        FragmentTransaction replace = getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.home_content_area, searchReleasesFragment, SearchReleasesFragment.class.getSimpleName());
-        if (addToBackStack) replace.addToBackStack(null);
-        replace.commit();
-        return searchReleasesFragment;
     }
 
     public UserReleasesFragment changeToUserReleaseView() { return changeToUserReleaseView(true); }
@@ -449,17 +459,6 @@ public class HomeActivity extends AppCompatActivity
         if (addToBackStack) replace.addToBackStack(null);
         replace.commit();
         return urf;
-    }
-
-    public void changeToGeneralArtistView()
-    {
-        ShowArtistsFragment showArtistsFragment = new ShowArtistsFragment();
-        showArtistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.home_content_area, showArtistsFragment, ShowArtistsFragment.class.getSimpleName())
-                .addToBackStack(null)
-                .commit();
     }
 
     public void changeToDetailReleaseView(Release release)

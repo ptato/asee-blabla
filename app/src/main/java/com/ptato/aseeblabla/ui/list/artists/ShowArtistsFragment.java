@@ -95,13 +95,6 @@ public class ShowArtistsFragment extends Fragment
         }
     }
 
-
-    public int getArtistCount()
-    {
-        RecyclerView.Adapter adapter = recyclerView.getAdapter();
-        return adapter == null ? 0 : adapter.getItemCount();
-    }
-
     private class ArtistsFragmentAdapter extends RecyclerView.Adapter<ArtistsFragmentAdapter.ViewHolder>
     {
         public List<Artist> artists;

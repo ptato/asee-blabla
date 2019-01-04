@@ -56,7 +56,7 @@ public class ArtistDetailActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 /*
-                SearchReleasesFragment srf = a.changeToSearchReleaseView();
+                ShowReleasesFragment srf = a.changeToSearchReleaseView();
                 new HomeActivity.DiscogsGetArtistReleasesTask(a, srf).execute(artist.discogsId);
                 */
             }
