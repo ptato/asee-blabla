@@ -29,6 +29,7 @@ import com.ptato.aseeblabla.data.DiscogsAPIUtils;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
 import com.ptato.aseeblabla.ui.list.artists.ShowArtistsFragment;
@@ -79,7 +80,7 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Repository repository = Repository.getInstance(this);
-        ListViewModelFactory factory = new ListViewModelFactory(repository);
+        AppViewModelFactory factory = new AppViewModelFactory(repository);
         viewModel = ViewModelProviders.of(this, factory).get(HomeViewModel.class);
 
         changeToUserReleaseView(false);

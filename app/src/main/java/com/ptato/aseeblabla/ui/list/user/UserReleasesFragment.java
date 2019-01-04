@@ -15,12 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.list.HomeActivity;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Release;
-import com.ptato.aseeblabla.ui.list.ListViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +121,7 @@ public class UserReleasesFragment extends Fragment
         if (activity != null)
         {
             Repository repository = Repository.getInstance(activity);
-            ListViewModelFactory factory = new ListViewModelFactory(repository);
+            AppViewModelFactory factory = new AppViewModelFactory(repository);
             viewModel = ViewModelProviders.of(this, factory).get(UserReleasesViewModel.class);
 
             viewModel.getUserReleases().observe(this, new Observer<List<Release>>()

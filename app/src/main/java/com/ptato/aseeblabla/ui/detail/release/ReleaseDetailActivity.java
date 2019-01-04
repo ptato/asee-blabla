@@ -18,11 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Release;
-import com.ptato.aseeblabla.ui.detail.DetailViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 
 public class ReleaseDetailActivity extends AppCompatActivity
@@ -45,7 +45,7 @@ public class ReleaseDetailActivity extends AppCompatActivity
 
         int releaseId = getIntent().getIntExtra(RELEASE_ID_EXTRA, -1);
         repository = Repository.getInstance(this);
-        DetailViewModelFactory factory = new DetailViewModelFactory(repository, releaseId);
+        AppViewModelFactory factory = new AppViewModelFactory(repository, releaseId);
         viewModel = ViewModelProviders.of(this, factory).get(ReleaseDetailViewModel.class);
         viewModel.getRelease().observe(this, new Observer<Release>()
         {

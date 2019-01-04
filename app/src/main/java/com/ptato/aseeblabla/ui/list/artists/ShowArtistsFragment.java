@@ -2,12 +2,10 @@ package com.ptato.aseeblabla.ui.list.artists;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,9 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ptato.aseeblabla.R;
-import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
-import com.ptato.aseeblabla.ui.list.ListViewModelFactory;
 import com.ptato.aseeblabla.utilities.DownloadImageTask;
 
 import java.util.ArrayList;
