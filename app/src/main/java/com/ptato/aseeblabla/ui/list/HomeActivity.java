@@ -51,11 +51,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public class OpenArtistDetailListener implements ShowArtistsFragment.OnClickArtistListener
-    {
-        @Override public void onClick(Artist a) { changeToDetailArtistView(a); }
-    }
-
     private HomeViewModel viewModel;
 
     @Override
@@ -227,7 +222,14 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_artists && !(f instanceof ShowArtistsFragment))
         {
             ShowArtistsFragment showArtistsFragment = new ShowArtistsFragment();
-            showArtistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
+            showArtistsFragment.setItemOnClickListener(new ShowArtistsFragment.OnClickArtistListener()
+            {
+                @Override
+                public void onClick(Artist r)
+                {
+                    changeToDetailArtistView(r);
+                }
+            });
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.home_content_area, showArtistsFragment, ShowArtistsFragment.class.getSimpleName())
@@ -242,208 +244,7 @@ public class HomeActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-/*
-    public static class DiscogsGetArtistReleasesTask extends AsyncTask<Integer, Void, JSONObject>
-    {
-        private static final String baseURL = "https://api.discogs.com/";
-        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
-        private ShowReleasesFragment srf;
-        private HomeActivity ha;
 
-        public DiscogsGetArtistReleasesTask(HomeActivity _ha, ShowReleasesFragment _srf)
-        {
-            srf = _srf;
-            ha = _ha;
-        }
-
-
-        @Override
-        protected JSONObject doInBackground(Integer... integers)
-        {
-            JSONObject jsonResult = null;
-
-            if (integers.length > 0)
-            {
-                StringBuilder queryURLBuilder = new StringBuilder(
-                        baseURL + "artists/" + integers[0].toString() + "/releases");
-                Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
-            }
-
-            return jsonResult;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject)
-        {
-            super.onPostExecute(jsonObject);
-
-            List<Release> releasesResult = new ArrayList<>();
-
-            if (jsonObject != null)
-            {
-                JSONArray releases = jsonObject.optJSONArray("releases");
-                if (releases != null)
-                {
-                    for (int i = 0; i < releases.length(); ++i)
-                    {
-                        JSONObject object = releases.optJSONObject(i);
-                        if (object.optString("type", "").equals("release"))
-                        {
-                            Release release = new Release();
-                            release.discogsId = object.optInt("id", -1);
-
-                            release.title = object.optString("title", "Unknown Title");
-                            release.thumbUrl = object.optString("thumb", "");
-                            release.year = Integer.toString(object.optInt("year", 0));
-
-                            releasesResult.add(release);
-                        }
-
-                    }
-                }
-            }
-
-            srf.setReleases(releasesResult);
-        }
-    }
-    */
-
-    private class DiscogsSearchQueryTask extends AsyncTask<Pair<String, String>, Void, JSONObject>
-    {
-        //private static final String baseURL = "https://api.discogs.com/releases/249504";
-        private static final String baseURL = "https://api.discogs.com/";
-        private static final String authToken = "GRkDMwQSYOBKnnWIOeJTokxkkViZQIrqcLzJilow";
-
-        public static final String TYPE = "type";
-        public static final String TYPE_RELEASE = "release";
-        public static final String TYPE_ARTIST = "artist";
-        public static final String TYPE_MASTER = "master";
-        public static final String TYPE_LABEL = "label";
-
-        public static final String NORMAL_QUERY = "query";
-        public static final String COMBINED_TITLE = "title";
-        public static final String RELEASE_TITLE = "release_title";
-        public static final String CREDIT = "credit";
-        public static final String ARTIST = "artist";
-        public static final String GENRE = "genre";
-        public static final String STYLE = "style";
-        public static final String COUNTRY = "country";
-        public static final String YEAR = "year";
-
-        @SafeVarargs
-        @Override
-        protected final JSONObject doInBackground(Pair<String, String>... params)
-        {
-            JSONObject jsonResult = null;
-
-            if (params.length > 0)
-            {
-                StringBuilder queryURLBuilder = new StringBuilder(baseURL + "database/search?");
-                int paramIndex = 0;
-                while (paramIndex < params.length)
-                {
-                    queryURLBuilder.append(params[paramIndex].first);
-                    queryURLBuilder.append("=");
-                    queryURLBuilder.append(params[paramIndex].second);
-                    paramIndex++;
-
-                    if (paramIndex < params.length)
-                        queryURLBuilder.append("&");
-                }
-                Log.i(this.getClass().getName(), queryURLBuilder.toString());
-                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
-            }
-
-            boolean isArtists = true;
-            for (Pair<String, String> param : params)
-            {
-                if (Objects.equals(param.first, TYPE))
-                {
-                    isArtists = Objects.equals(param.second, TYPE_ARTIST);
-                }
-            }
-
-            try
-            {
-                jsonResult.put("type_of_json", isArtists);
-            } catch (Exception e)
-            {
-                Log.e(DiscogsSearchQueryTask.class.getName(), "Did not add type_of_json. This isn't going to work.");
-            }
-
-            return jsonResult;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject json)
-        {
-            super.onPostExecute(json);
-
-            try
-            {
-                boolean isArtists = json.getBoolean("type_of_json");
-                if (json != null && json.has("results"))
-                {
-                    if (isArtists)
-                    {
-                        List<Artist> artists = new ArrayList<>();
-
-                        JSONArray results = json.getJSONArray("results");
-                        for (int artistIndex = 0; artistIndex < results.length(); ++artistIndex)
-                        {
-                            JSONObject artist = results.getJSONObject(artistIndex);
-                            if (artist.optString("type").equals(TYPE_ARTIST))
-                            {
-                                Artist a = new Artist();
-
-                                a.discogsId = artist.optInt("id", -1);
-                                a.name = artist.optString("title");
-                                a.imgUrl = artist.optString("thumb");
-
-                                artists.add(a);
-                            }
-
-                        }
-
-                    } else
-                    {
-                        List<Release> releases = new ArrayList<>();
-
-                        JSONArray results = json.getJSONArray("results");
-                        for(int releaseIndex = 0; releaseIndex < results.length(); ++releaseIndex)
-                        {
-                            JSONObject release = results.getJSONObject(releaseIndex);
-
-                            Release r = new Release();
-                            r.discogsId = release.optInt("id", -1);
-                            r.thumbUrl = release.optString("thumb", "");
-
-                            String defaultTitle = "Unknown Artist - Unknown Title";
-                            r.title = release.optString("title", defaultTitle).split("-")[1].substring(1);
-                            r.artist = release.optString("title", defaultTitle).split("-")[0];
-                            r.artist = r.artist.substring(0, r.artist.length() - 1);
-                            r.year = release.optString("year", "Unknown Year");
-                            // uri, format (list<string>), label (list<string>), cover_image,
-                            // genre (list<string>), resource_url, style (list<string>)
-                            releases.add(r);
-                        }
-/*
-                        if(getCurrentView().equals(ShowReleasesFragment.class.getSimpleName()))
-                        {
-                            ShowReleasesFragment rf = (ShowReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                            if (rf != null) rf.setReleases(releases, true);
-                        }
-                        */
-                    }
-                }
-            } catch (JSONException e)
-            {
-                Log.e(DiscogsSearchQueryTask.class.getName(), "Error al parsear JSON");
-                Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
-            }
-        }
-    }
 
     public UserReleasesFragment changeToUserReleaseView() { return changeToUserReleaseView(true); }
     public UserReleasesFragment changeToUserReleaseView(boolean addToBackStack)

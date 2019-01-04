@@ -2,6 +2,7 @@ package com.ptato.aseeblabla.ui.detail.artist;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -14,7 +15,12 @@ import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 
+import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.AppViewModelFactory;
+import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
+import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailViewModel;
+import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
+import com.ptato.aseeblabla.ui.list.ShowReleasesFragment;
 import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
@@ -39,7 +45,7 @@ public class ArtistDetailActivity extends AppCompatActivity
         int artistId = getIntent().getIntExtra(ARTIST_ID_EXTRA, -1);
         Repository repository = Repository.getInstance(this);
         AppViewModelFactory factory = new AppViewModelFactory(repository, artistId);
-        ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
+        final ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
         viewModel.getArtist().observe(this, new Observer<Artist>()
         {
             @Override
@@ -49,16 +55,29 @@ public class ArtistDetailActivity extends AppCompatActivity
             }
         });
 
-        Button viewReleases = findViewById(R.id.detail_artist_view_releases);
+        final Button viewReleases = findViewById(R.id.detail_artist_view_releases);
         viewReleases.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                /*
-                ShowReleasesFragment srf = a.changeToSearchReleaseView();
-                new HomeActivity.DiscogsGetArtistReleasesTask(a, srf).execute(artist.discogsId);
-                */
+                ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
+                showReleasesFragment.setItemOnClickListener(new ReleasesFragmentAdapter.OnClickReleaseListener()
+                {
+                    @Override
+                    public void onClick(Release r)
+                    {
+                        Intent intent = new Intent(ArtistDetailActivity.this, ReleaseDetailActivity.class);
+                        intent.putExtra(ReleaseDetailActivity.RELEASE_ID_EXTRA, r.discogsId);
+                        ArtistDetailActivity.this.startActivity(intent);
+                    }
+                });
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.artist_detail_content, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
+                        .addToBackStack(null)
+                        .commit();
+                showReleasesFragment.showReleases(viewModel.getArtistReleases());
             }
         });
     }

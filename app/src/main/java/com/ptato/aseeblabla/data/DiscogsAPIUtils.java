@@ -88,6 +88,20 @@ public class DiscogsAPIUtils
         return liveData;
     }
 
+    public static LiveData<List<Release>> getArtistReleases(int artistId)
+    {
+        MutableLiveData<List<Release>> liveData = new MutableLiveData<>();
+        liveData.setValue(new ArrayList<Release>());
+
+        if (artistId != -1)
+        {
+            // noinspection unchecked
+            new DiscogsGetArtistReleasesTask(liveData).execute(artistId);
+        }
+
+        return liveData;
+    }
+
     private static class DiscogsGetArtistDetailsTask extends AsyncTask<Integer, Void, JSONObject>
     {
         private MutableLiveData<Artist> liveData;
@@ -337,6 +351,67 @@ public class DiscogsAPIUtils
                 Log.e(DiscogsSearchQueryTask.class.getName(), "Error al parsear JSON");
                 Log.e(DiscogsSearchQueryTask.class.getName(), e.getMessage());
             }
+        }
+    }
+
+
+    private static class DiscogsGetArtistReleasesTask extends AsyncTask<Integer, Void, JSONObject>
+    {
+        private MutableLiveData<List<Release>> outputReleases;
+
+        public DiscogsGetArtistReleasesTask(MutableLiveData<List<Release>> output)
+        {
+            outputReleases = output;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Integer... integers)
+        {
+            JSONObject jsonResult = null;
+
+            if (integers.length > 0)
+            {
+                StringBuilder queryURLBuilder = new StringBuilder(
+                        baseURL + "artists/" + integers[0].toString() + "/releases");
+                Log.i(this.getClass().getName(), queryURLBuilder.toString());
+                jsonResult = DiscogsAPIUtils.getResponseFromDiscogs(queryURLBuilder.toString());
+            }
+
+            return jsonResult;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject)
+        {
+            super.onPostExecute(jsonObject);
+
+            List<Release> releasesResult = new ArrayList<>();
+
+            if (jsonObject != null)
+            {
+                JSONArray releases = jsonObject.optJSONArray("releases");
+                if (releases != null)
+                {
+                    for (int i = 0; i < releases.length(); ++i)
+                    {
+                        JSONObject object = releases.optJSONObject(i);
+                        if (object.optString("type", "").equals("release"))
+                        {
+                            Release release = new Release();
+                            release.discogsId = object.optInt("id", -1);
+
+                            release.title = object.optString("title", "Unknown Title");
+                            release.thumbUrl = object.optString("thumb", "");
+                            release.year = Integer.toString(object.optInt("year", 0));
+
+                            releasesResult.add(release);
+                        }
+
+                    }
+                }
+            }
+
+            outputReleases.setValue(releasesResult);
         }
     }
 
