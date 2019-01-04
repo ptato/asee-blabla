@@ -18,7 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ptato.aseeblabla.DownloadImageTask;
+import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Release;

@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.ui.list;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -21,12 +21,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.DiscogsAPIUtils;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
-import com.ptato.aseeblabla.ui.list.UserReleasesFragment;
+import com.ptato.aseeblabla.ui.list.artists.ArtistSearchFragment;
+import com.ptato.aseeblabla.ui.list.artists.ArtistSearchViewModel;
+import com.ptato.aseeblabla.ui.list.releases.SearchReleasesFragment;
+import com.ptato.aseeblabla.ui.list.user.UserReleasesFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +51,7 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public class OpenArtistDetailListener implements ArtistsFragment.OnClickArtistListener
+    public class OpenArtistDetailListener implements ArtistSearchFragment.OnClickArtistListener
     {
         @Override public void onClick(Artist a) { changeToDetailArtistView(a); }
     }
@@ -84,26 +88,22 @@ public class HomeActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             Fragment f = fm.findFragmentById(R.id.home_content_area);
 
-            if (f != null)
+            if (f instanceof ArtistSearchFragment)
             {
-                if (getCurrentView().equals(ArtistsFragment.class.getSimpleName())
-                        && ((ArtistsFragment)f).getArtistCount() == 0)
-                {
-                    ((ArtistsFragment)f).setArtists(new ArrayList<Artist>());
-
-
-                } else if (getCurrentView().equals(UserReleasesFragment.class.getSimpleName())
-                        && ((UserReleasesFragment)f).isUsingSearchResults()) {
-                    ((UserReleasesFragment)f).clearSearchQuery();
-
-
-                } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
-                {
+                if (((ArtistSearchFragment)f).getArtistCount() > 0)
+                    ((ArtistSearchFragment)f).clearSearchQuery();
+                else
                     fm.popBackStack();
-                } else
-                {
-                    super.onBackPressed();
-                }
+
+            } else if (f instanceof UserReleasesFragment) {
+                if (((UserReleasesFragment)f).isUsingSearchResults())
+                    ((UserReleasesFragment)f).clearSearchQuery();
+                else
+                    fm.popBackStack();
+
+            } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+            {
+                fm.popBackStack();
             } else
             {
                 super.onBackPressed();
@@ -126,7 +126,17 @@ public class HomeActivity extends AppCompatActivity
                 @Override
                 public boolean onQueryTextSubmit(String s)
                 {
-                    if (getCurrentView().equals(SearchReleasesFragment.class.getSimpleName()))
+                    Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
+                    Log.i(HomeActivity.this.getClass().getSimpleName(), "La búsqueda es '" + s + "'");
+                    Log.i(HomeActivity.this.getClass().getSimpleName(),
+                            "El fragmento actual es " + (f==null?"'NULL'":f.getClass().getSimpleName()));
+                    if (f instanceof ArtistSearchFragment)
+                    {
+                        Log.i(HomeActivity.this.getClass().getSimpleName(), "Buscando artistas '" + s + "'");
+                        ((ArtistSearchFragment)f).setSearchQuery(s);
+                        menu.findItem(R.id.action_search).collapseActionView();
+                        return true;
+                    } else if (f instanceof SearchReleasesFragment)
                     {
                         //noinspection unchecked
                         new DiscogsSearchQueryTask().execute(
@@ -135,19 +145,9 @@ public class HomeActivity extends AppCompatActivity
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                         return true;
-                    } else if (getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
+                    } else if (f instanceof UserReleasesFragment)
                     {
-                        // noinspection unchecked
-                        new DiscogsSearchQueryTask().execute(
-                                Pair.create(DiscogsSearchQueryTask.TYPE, DiscogsSearchQueryTask.TYPE_ARTIST),
-                                Pair.create(DiscogsSearchQueryTask.COMBINED_TITLE, s));
-                        searchView.clearFocus();
-                        menu.findItem(R.id.action_search).collapseActionView();
-                        return true;
-                    } else if (getCurrentView().equals(UserReleasesFragment.class.getSimpleName()))
-                    {
-                        Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                        if (f != null) ((UserReleasesFragment)f).setSearchQuery(s);
+                        ((UserReleasesFragment)f).setSearchQuery(s);
                         searchView.clearFocus();
                         menu.findItem(R.id.action_search).collapseActionView();
                     }
@@ -193,13 +193,13 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-        if (id == R.id.nav_releases && !getCurrentView().equals(SearchReleasesFragment.class.getSimpleName()))
+        if (id == R.id.nav_releases && !(f instanceof SearchReleasesFragment))
         {
             changeToSearchReleaseView();
-        } else if (id == R.id.nav_artists && !getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
+        } else if (id == R.id.nav_artists && !(f instanceof ArtistSearchFragment))
         {
             changeToGeneralArtistView();
-        } else if (id == R.id.nav_my_releases && !getCurrentView().equals(UserReleasesFragment.class.getSimpleName()))
+        } else if (id == R.id.nav_my_releases && !(f instanceof UserReleasesFragment))
         {
             changeToUserReleaseView();
         }
@@ -370,13 +370,6 @@ public class HomeActivity extends AppCompatActivity
                             }
 
                         }
-;
-
-                        if(getCurrentView().equals(ArtistsFragment.class.getSimpleName()))
-                        {
-                            ArtistsFragment af = (ArtistsFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-                            if (af != null) af.setArtists(artists);
-                        }
 
                     } else
                     {
@@ -400,12 +393,13 @@ public class HomeActivity extends AppCompatActivity
                             // genre (list<string>), resource_url, style (list<string>)
                             releases.add(r);
                         }
-
+/*
                         if(getCurrentView().equals(SearchReleasesFragment.class.getSimpleName()))
                         {
                             SearchReleasesFragment rf = (SearchReleasesFragment)getSupportFragmentManager().findFragmentById(R.id.home_content_area);
                             if (rf != null) rf.setReleases(releases, true);
                         }
+                        */
                     }
                 }
             } catch (JSONException e)
@@ -445,11 +439,11 @@ public class HomeActivity extends AppCompatActivity
 
     public void changeToGeneralArtistView()
     {
-        ArtistsFragment artistsFragment = new ArtistsFragment();
-        artistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
+        ArtistSearchFragment artistSearchFragment = new ArtistSearchFragment();
+        artistSearchFragment.setItemOnClickListener(new OpenArtistDetailListener());
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.home_content_area, artistsFragment, ArtistsFragment.class.getSimpleName())
+                .replace(R.id.home_content_area, artistSearchFragment, ArtistSearchFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
     }
@@ -466,12 +460,5 @@ public class HomeActivity extends AppCompatActivity
         Intent intent = new Intent(this, ArtistDetailActivity.class);
         intent.putExtra(ArtistDetailActivity.ARTIST_ID_EXTRA, artist.discogsId);
         startActivity(intent);
-    }
-
-    public String getCurrentView()
-    {
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment f = fm.findFragmentById(R.id.home_content_area);
-        return f != null ? f.getClass().getSimpleName() : "";
     }
 }

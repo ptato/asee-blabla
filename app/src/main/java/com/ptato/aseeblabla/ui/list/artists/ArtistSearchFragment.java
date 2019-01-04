@@ -1,30 +1,38 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.ui.list.artists;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.R;
+import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
+import com.ptato.aseeblabla.ui.list.ListViewModelFactory;
+import com.ptato.aseeblabla.utilities.DownloadImageTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArtistsFragment extends Fragment
+public class ArtistSearchFragment extends Fragment
 {
     private RecyclerView recyclerView;
     private OnClickArtistListener itemOnClickListener;
-    private List<Artist> persistArtists = null;
 
     private TextView emptyTextView;
+    private ArtistSearchViewModel viewModel;
 
     public interface OnClickArtistListener
     {
@@ -40,13 +48,11 @@ public class ArtistsFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        recyclerView.setAdapter(new ArtistsFragmentAdapter(persistArtists, itemOnClickListener));
-
+        recyclerView.setAdapter(new ArtistsFragmentAdapter(itemOnClickListener));
 
         emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
         emptyTextView.setText("No se han encontrado artistas");
-        emptyTextView.setVisibility(
-                persistArtists != null && persistArtists.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -54,16 +60,35 @@ public class ArtistsFragment extends Fragment
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+        FragmentActivity activity = getActivity();
+        if (activity != null)
+        {
+            Repository repository = Repository.getInstance(activity);
+            ListViewModelFactory factory = new ListViewModelFactory(repository);
+            viewModel = ViewModelProviders.of(this, factory).get(ArtistSearchViewModel.class);
+
+            viewModel.getArtists().observe(this, new Observer<List<Artist>>()
+            {
+                @Override
+                public void onChanged(@Nullable List<Artist> artists)
+                {
+                    updateUi(artists);
+                }
+            });
+        }
+    }
 
     public void setItemOnClickListener(OnClickArtistListener listener)
     {
         itemOnClickListener = listener;
     }
 
-    public void setArtists(List<Artist> artists)
+    private void updateUi(List<Artist> artists)
     {
-        persistArtists = artists;
-
         ArtistsFragmentAdapter afa = (ArtistsFragmentAdapter) recyclerView.getAdapter();
         if (afa != null)
         {
@@ -82,6 +107,16 @@ public class ArtistsFragment extends Fragment
         }
     }
 
+    public void setSearchQuery(String query)
+    {
+        viewModel.setSearchQuery(query);
+    }
+
+    public void clearSearchQuery()
+    {
+        viewModel.setSearchQuery(null);
+    }
+
 
 
     private class ArtistsFragmentAdapter extends RecyclerView.Adapter<ArtistsFragmentAdapter.ViewHolder>
@@ -89,12 +124,9 @@ public class ArtistsFragment extends Fragment
         public List<Artist> artists;
         private OnClickArtistListener adapterOnClick;
 
-        public ArtistsFragmentAdapter(List<Artist> _artists, OnClickArtistListener listener)
+        public ArtistsFragmentAdapter(OnClickArtistListener listener)
         {
-            if (_artists == null)
-                this.artists = new ArrayList<>();
-            else
-                this.artists = _artists;
+            artists = new ArrayList<>();
             adapterOnClick = listener;
         }
 
@@ -104,10 +136,7 @@ public class ArtistsFragment extends Fragment
         {
             View artistLayoutView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.artist_entry, viewGroup, false);
-
-
-            ArtistsFragmentAdapter.ViewHolder viewHolder = new ArtistsFragmentAdapter.ViewHolder(artistLayoutView);
-            return viewHolder;
+            return new ViewHolder(artistLayoutView);
         }
 
         @Override

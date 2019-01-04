@@ -78,4 +78,14 @@ public class Repository
     {
         return DiscogsAPIUtils.getArtist(id);
     }
+
+    public LiveData<List<Release>> searchReleases(String query)
+    {
+        return DiscogsAPIUtils.searchReleases(query);
+    }
+
+    public LiveData<List<Artist>> searchArtists(String query)
+    {
+        return DiscogsAPIUtils.searchArtists(query);
+    }
 }

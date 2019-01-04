@@ -1,5 +1,6 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.utilities;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;

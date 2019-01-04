@@ -16,7 +16,7 @@
 
 
         <activity
-            android:name=".HomeActivity"
+            android:name=".ui.list.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -31,14 +31,14 @@
             android:name=".ui.detail.artist.ArtistDetailActivity"
             android:label="moonwave/artist"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".HomeActivity">
+            android:parentActivityName=".ui.list.HomeActivity">
         </activity>
 
         <activity
             android:name=".ui.detail.release.ReleaseDetailActivity"
             android:label="moonwave/release"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".HomeActivity">
+            android:parentActivityName=".ui.list.HomeActivity">
         </activity>
 
     </application>

@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 
-import com.ptato.aseeblabla.DownloadImageTask;
+import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;

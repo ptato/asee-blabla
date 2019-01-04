@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.ui.list;
+package com.ptato.aseeblabla.ui.list.user;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;

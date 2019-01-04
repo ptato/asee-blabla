@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.ui.list.releases;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.ui.list.HomeActivity;
+import com.ptato.aseeblabla.R;
+import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
 import com.ptato.aseeblabla.data.db.Release;
 
 import java.util.List;

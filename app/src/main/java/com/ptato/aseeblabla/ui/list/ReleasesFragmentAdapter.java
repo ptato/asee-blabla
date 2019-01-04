@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla;
+package com.ptato.aseeblabla.ui.list;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.utilities.DownloadImageTask;
 
 import java.util.ArrayList;
 import java.util.List;

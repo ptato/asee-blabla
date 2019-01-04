@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.ui.list;
+package com.ptato.aseeblabla.ui.list.user;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -15,11 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ptato.aseeblabla.HomeActivity;
+import com.ptato.aseeblabla.ui.list.HomeActivity;
 import com.ptato.aseeblabla.R;
-import com.ptato.aseeblabla.ReleasesFragmentAdapter;
+import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.list.ListViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class UserReleasesFragment extends Fragment
     {
         searchQuery = query;
         if (viewModel != null)
-            updateAdapter(viewModel.getUserReleases().getValue());
+            updateUi(viewModel.getUserReleases().getValue());
         isUsingSearchResultsValue = true;
     }
 
@@ -51,11 +52,11 @@ public class UserReleasesFragment extends Fragment
     {
         searchQuery = null;
         if (viewModel != null)
-            updateAdapter(viewModel.getUserReleases().getValue());
+            updateUi(viewModel.getUserReleases().getValue());
         isUsingSearchResultsValue = false;
     }
 
-    private void updateAdapter(List<Release> newReleases)
+    private void updateUi(List<Release> newReleases)
     {
         List<Release> processedReleases = new ArrayList<>();
         Log.i(this.getClass().getSimpleName(), "Updating Adapter");
@@ -128,7 +129,7 @@ public class UserReleasesFragment extends Fragment
                 @Override
                 public void onChanged(@Nullable List<Release> releases)
                 {
-                    updateAdapter(releases);
+                    updateUi(releases);
                 }
             });
         }
