@@ -8,7 +8,6 @@ import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailViewModel;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailViewModel;
 import com.ptato.aseeblabla.ui.list.HomeViewModel;
-import com.ptato.aseeblabla.ui.list.user.UserReleasesViewModel;
 
 public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory
 {
@@ -34,8 +33,6 @@ public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory
             return (T) new ReleaseDetailViewModel(repository, id);
         else if (ArtistDetailViewModel.class.getSimpleName().equals(modelClass.getSimpleName()))
             return (T) new ArtistDetailViewModel(repository, id);
-        else if (UserReleasesViewModel.class.getSimpleName().equals(modelClass.getSimpleName()))
-            return (T) new UserReleasesViewModel(repository);
         else
             return (T) new HomeViewModel(repository);
     }

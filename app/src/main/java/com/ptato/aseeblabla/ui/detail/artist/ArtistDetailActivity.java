@@ -19,7 +19,6 @@ import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailViewModel;
-import com.ptato.aseeblabla.ui.list.ReleasesFragmentAdapter;
 import com.ptato.aseeblabla.ui.list.ShowReleasesFragment;
 import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
@@ -62,7 +61,7 @@ public class ArtistDetailActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
-                showReleasesFragment.setItemOnClickListener(new ReleasesFragmentAdapter.OnClickReleaseListener()
+                showReleasesFragment.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
                 {
                     @Override
                     public void onClick(Release r)

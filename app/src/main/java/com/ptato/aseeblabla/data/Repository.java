@@ -26,7 +26,10 @@ public class Repository
     {
         if (instance == null)
         {
-            instance = new Repository(context);
+            synchronized (SINGLETON_LOCK)
+            {
+                instance = new Repository(context);
+            }
         }
         return instance;
     }

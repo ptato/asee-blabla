@@ -4,14 +4,12 @@ import android.app.SearchManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,27 +21,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ptato.aseeblabla.R;
-import com.ptato.aseeblabla.data.DiscogsAPIUtils;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
-import com.ptato.aseeblabla.ui.list.user.UserReleasesFragment;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
-    public class OpenReleaseDetailListener implements ReleasesFragmentAdapter.OnClickReleaseListener
+    public class OpenReleaseDetailListener implements ShowReleasesFragment.OnClickReleaseListener
     {
         @Override public void onClick(Release release)
         {
@@ -74,7 +64,19 @@ public class HomeActivity extends AppCompatActivity
         AppViewModelFactory factory = new AppViewModelFactory(repository);
         viewModel = ViewModelProviders.of(this, factory).get(HomeViewModel.class);
 
-        changeToUserReleaseView(false);
+        switch (viewModel.currentNavigationTab)
+        {
+            case USER_RELEASES:
+                changeToUserReleaseTab();
+                break;
+            case SEARCH_ARTISTS:
+                changeToSearchArtistsTab();
+                break;
+            case SEARCH_RELEASES:
+                changeToSearchReleasesTab();
+                break;
+        }
+
     }
 
     @Override
@@ -89,34 +91,39 @@ public class HomeActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             Fragment f = fm.findFragmentById(R.id.home_content_area);
 
-            if (f instanceof ShowArtistsFragment)
+            if (fm.getBackStackEntryCount() > 0)
             {
-                // @NOTE: ShowArtistsFragment is (for now) only being used for showing
-                // artist search results. Which mean it's always showing artist search data we
-                // gave to it from our ViewModel.
-                List<Artist> artists = viewModel.getArtistSearchResults().getValue();
-                if (artists != null && artists.size() > 0)
+                switch (viewModel.currentNavigationTab)
                 {
-                    viewModel.setArtistSearchQuery(null);
-                    ((ShowArtistsFragment) f).showArtists(null);
-                } else
-                {
-                    fm.popBackStack();
-                }
-            } else if (f instanceof UserReleasesFragment)
-            {
-                if (((UserReleasesFragment)f).isUsingSearchResults())
-                    ((UserReleasesFragment)f).clearSearchQuery();
-                else
-                    fm.popBackStack();
+                    case SEARCH_RELEASES:
+                        // @TODO: Need to un-show the results and go back to initial view of this tab
+                        fm.popBackStack();
+                        break;
 
-            } else if (f instanceof ShowReleasesFragment)
-            {
-                // @TODO: Need to un-show the results and go back to initial view of this tab
-                fm.popBackStack();
-            } else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
-            {
-                fm.popBackStack();
+                    case SEARCH_ARTISTS:
+                        // @NOTE: ShowArtistsFragment is (for now) only being used for showing
+                        // artist search results. Which mean it's always showing artist search data we
+                        // gave to it from our ViewModel.
+                        List<Artist> artists = viewModel.getArtistSearchResults().getValue();
+                        if (artists != null && artists.size() > 0)
+                        {
+                            viewModel.setArtistSearchQuery(null);
+                            if (f != null) ((ShowArtistsFragment) f).showArtists(null);
+                        } else
+                        {
+                            fm.popBackStack();
+                        }
+                        break;
+
+                    case USER_RELEASES:
+                        /*
+                        if (((UserReleasesFragment)f).isUsingSearchResults())
+                            ((UserReleasesFragment)f).clearSearchQuery();
+                        else
+                        */
+                            fm.popBackStack();
+                        break;
+                }
             } else
             {
                 super.onBackPressed();
@@ -141,35 +148,27 @@ public class HomeActivity extends AppCompatActivity
                 {
                     Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
                     Log.i(HomeActivity.this.getClass().getSimpleName(), "La búsqueda es '" + s + "'");
-                    Log.i(HomeActivity.this.getClass().getSimpleName(),
-                            "El fragmento actual es " + (f==null?"'NULL'":f.getClass().getSimpleName()));
-                    if (f instanceof ShowArtistsFragment)
-                    {
-                        Log.i(HomeActivity.this.getClass().getSimpleName(), "Buscando artistas '" + s + "'");
-                        viewModel.setArtistSearchQuery(s);
-                        ((ShowArtistsFragment)f).showArtists(viewModel.getArtistSearchResults());
 
-                        searchView.clearFocus();
-                        menu.findItem(R.id.action_search).collapseActionView();
-                        return true;
-                    } else if (f instanceof ShowReleasesFragment)
+                    switch (viewModel.currentNavigationTab)
                     {
-                        viewModel.setReleaseSearchQuery(s);
-                        ((ShowReleasesFragment)f).showReleases(viewModel.getReleaseSearchResults());
+                        case USER_RELEASES:
+                            //if (f != null) ((ShowReleasesFragment)f).showReleases(viewModel.getUserReleases());
+                            break;
 
-                        searchView.clearFocus();
-                        menu.findItem(R.id.action_search).collapseActionView();
-                        return true;
-                    } else if (f instanceof UserReleasesFragment)
-                    {
-                        ((UserReleasesFragment)f).setSearchQuery(s);
+                        case SEARCH_ARTISTS:
+                            viewModel.setArtistSearchQuery(s);
+                            if (f != null) ((ShowArtistsFragment)f).showArtists(viewModel.getArtistSearchResults());
+                            break;
 
-                        searchView.clearFocus();
-                        menu.findItem(R.id.action_search).collapseActionView();
-                        return true;
+                        case SEARCH_RELEASES:
+                            viewModel.setReleaseSearchQuery(s);
+                            if (f != null) ((ShowReleasesFragment)f).showReleases(viewModel.getReleaseSearchResults());
+                            break;
                     }
 
-                    return false;
+                    searchView.clearFocus();
+                    menu.findItem(R.id.action_search).collapseActionView();
+                    return true;
                 }
 
                 @Override
@@ -206,38 +205,22 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
-        if (id == R.id.nav_releases && !(f instanceof ShowReleasesFragment))
+        if (id == R.id.nav_releases
+                && viewModel.currentNavigationTab != HomeViewModel.AppNavigationTab.SEARCH_RELEASES)
         {
-            ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
-            showReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.home_content_area, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
-        } else if (id == R.id.nav_artists && !(f instanceof ShowArtistsFragment))
+            changeToSearchReleasesTab();
+
+        } else if (id == R.id.nav_artists
+                && viewModel.currentNavigationTab != HomeViewModel.AppNavigationTab.SEARCH_ARTISTS)
         {
-            ShowArtistsFragment showArtistsFragment = new ShowArtistsFragment();
-            showArtistsFragment.setItemOnClickListener(new ShowArtistsFragment.OnClickArtistListener()
-            {
-                @Override
-                public void onClick(Artist r)
-                {
-                    changeToDetailArtistView(r);
-                }
-            });
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.home_content_area, showArtistsFragment, ShowArtistsFragment.class.getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
-        } else if (id == R.id.nav_my_releases && !(f instanceof UserReleasesFragment))
+            changeToSearchArtistsTab();
+
+        } else if (id == R.id.nav_my_releases
+                && viewModel.currentNavigationTab != HomeViewModel.AppNavigationTab.USER_RELEASES)
         {
-            changeToUserReleaseView();
+            changeToUserReleaseTab();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -246,18 +229,50 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    public UserReleasesFragment changeToUserReleaseView() { return changeToUserReleaseView(true); }
-    public UserReleasesFragment changeToUserReleaseView(boolean addToBackStack)
+    public void changeToUserReleaseTab()
     {
-        UserReleasesFragment urf = new UserReleasesFragment();
-        urf.setItemOnClickListener(new OpenReleaseDetailListener());
-        // urf.setReleases(userReleases);
-        FragmentTransaction replace = getSupportFragmentManager()
+        ShowReleasesFragment srf = new ShowReleasesFragment();
+        srf.setItemOnClickListener(new OpenReleaseDetailListener());
+        srf.showReleases(viewModel.getUserReleases());
+        getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.home_content_area, urf, UserReleasesFragment.class.getSimpleName());
-        if (addToBackStack) replace.addToBackStack(null);
-        replace.commit();
-        return urf;
+                .replace(R.id.home_content_area, srf, "USER_RELEASES")
+                .addToBackStack(null)
+                .commit();
+        viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.USER_RELEASES;
+    }
+
+    public void changeToSearchReleasesTab()
+    {
+        ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
+        showReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
+        showReleasesFragment.showReleases(viewModel.getReleaseSearchResults());
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.home_content_area, showReleasesFragment, "SEARCH_RELEASES")
+                .addToBackStack(null)
+                .commit();
+        viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.SEARCH_RELEASES;
+    }
+
+    public void changeToSearchArtistsTab()
+    {
+        ShowArtistsFragment saf = new ShowArtistsFragment();
+        saf.setItemOnClickListener(new ShowArtistsFragment.OnClickArtistListener()
+        {
+            @Override
+            public void onClick(Artist r)
+            {
+                changeToDetailArtistView(r);
+            }
+        });
+        saf.showArtists(viewModel.getArtistSearchResults());
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.home_content_area, saf, "SEARCH_ARTISTS")
+                .addToBackStack(null)
+                .commit();
+        viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.SEARCH_ARTISTS;
     }
 
     public void changeToDetailReleaseView(Release release)

@@ -17,6 +17,14 @@ public class HomeViewModel extends ViewModel
 {
     private final Repository repository;
 
+    public enum AppNavigationTab
+    {
+        USER_RELEASES, SEARCH_RELEASES, SEARCH_ARTISTS
+    }
+    public AppNavigationTab currentNavigationTab;
+
+    private LiveData<List<Release>> userReleases;
+
     private final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
     private final LiveData<List<Artist>> artistSearchResults =
             Transformations.switchMap(artistSearchQueryInput, new Function<String, LiveData<List<Artist>>>()
@@ -42,6 +50,13 @@ public class HomeViewModel extends ViewModel
     public HomeViewModel(@NonNull Repository _repository)
     {
         repository = _repository;
+        userReleases = repository.getUserReleases();
+        currentNavigationTab = AppNavigationTab.USER_RELEASES;
+    }
+
+    public LiveData<List<Release>> getUserReleases()
+    {
+        return userReleases;
     }
 
     public LiveData<List<Artist>> getArtistSearchResults()
