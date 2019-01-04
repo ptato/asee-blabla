@@ -31,10 +31,12 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
+                                      <entry key="backgroundAssetType" value="COLOR" />
+                                      <entry key="backgroundColor" value="e3d1ff" />
                                       <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="C:\Users\Pablo Tato\Pictures\HappyCannonbolt.png" />
-                                      <entry key="foregroundLayerName" value="cannonbolt" />
-                                      <entry key="outputName" value="cannonbolt" />
+                                      <entry key="foregroundImage" value="C:\Users\Pablo Tato\Pictures\moonwave.png" />
+                                      <entry key="foregroundLayerName" value="moonwave_launcher_icon_fg" />
+                                      <entry key="outputName" value="moonwave_launcher_icon" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -67,11 +69,6 @@
                                 </PersistentState>
                               </value>
                             </entry>
-                          </map>
-                        </option>
-                        <option name="values">
-                          <map>
-                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
                           </map>
                         </option>
                       </PersistentState>

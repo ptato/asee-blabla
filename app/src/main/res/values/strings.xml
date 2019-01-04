@@ -17,4 +17,6 @@
     <string name="default_release_year">DEFAULT RELEASE YEAR</string>
 
     <string name="results_not_found">No se han encontrado resultados</string>
+    <string name="list_info_text">INFO TEXT</string>
+    <string name="list_title">LIST TITLE</string>
 </resources>

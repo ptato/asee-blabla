@@ -27,7 +27,8 @@ public abstract class ShowArtistsFragment extends Fragment
     private OnClickArtistListener itemOnClickListener;
 
     private RecyclerView recyclerView;
-    private TextView emptyTextView;
+    private TextView infoTextView;
+    private TextView titleView;
 
     public interface OnClickArtistListener
     {
@@ -39,15 +40,18 @@ public abstract class ShowArtistsFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.general_list_content, container, false);
-        recyclerView = rootView.findViewById(R.id.releases_recycler);
+        recyclerView = rootView.findViewById(R.id.list_recycler);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         recyclerView.setAdapter(new ArtistsFragmentAdapter(itemOnClickListener));
 
-        emptyTextView = rootView.findViewById(R.id.releases_empty_recycler);
-        emptyTextView.setText("No se han encontrado artistas");
-        emptyTextView.setVisibility(View.VISIBLE);
+        infoTextView = rootView.findViewById(R.id.list_info_text);
+        infoTextView.setText("Pulsa la lupa para buscar");
+        infoTextView.setVisibility(View.VISIBLE);
+
+        titleView = rootView.findViewById(R.id.list_title);
+        titleView.setVisibility(View.GONE);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -84,15 +88,15 @@ public abstract class ShowArtistsFragment extends Fragment
             afa.artists = artists;
             afa.notifyDataSetChanged();
             if (artists.size() > 0)
-                emptyTextView.setVisibility(View.INVISIBLE);
+                infoTextView.setVisibility(View.INVISIBLE);
             else
-                emptyTextView.setVisibility(View.VISIBLE);
+                infoTextView.setVisibility(View.VISIBLE);
         }
 
         if (artists == null || artists.size() == 0)
         {
-            emptyTextView.setText(R.string.results_not_found);
-            emptyTextView.setVisibility(View.VISIBLE);
+            infoTextView.setText(R.string.results_not_found);
+            infoTextView.setVisibility(View.VISIBLE);
         }
     }
 

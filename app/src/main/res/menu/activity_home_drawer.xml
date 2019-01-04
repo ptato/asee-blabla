@@ -13,12 +13,12 @@
         <item
             android:id="@+id/nav_releases"
             android:icon="?android:attr/actionModeWebSearchDrawable"
-            android:title="Buscar Lanzamientos Online" />
+            android:title="Buscar Lanzamientos" />
 
         <item
             android:id="@+id/nav_artists"
-            android:icon="?android:attr/actionModeWebSearchDrawable"
-            android:title="Buscar Artistas Online" />
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="Buscar Artistas" />
 
 
     </group>
