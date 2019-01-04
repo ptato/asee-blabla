@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.ui.list.releases;
+package com.ptato.aseeblabla.ui.list;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;

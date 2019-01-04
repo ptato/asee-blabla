@@ -30,8 +30,6 @@ import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
-import com.ptato.aseeblabla.ui.list.artists.ShowArtistsFragment;
-import com.ptato.aseeblabla.ui.list.releases.ShowReleasesFragment;
 import com.ptato.aseeblabla.ui.list.user.UserReleasesFragment;
 
 import org.json.JSONArray;
