@@ -39,14 +39,6 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
-    public class OpenReleaseDetailListener implements ShowReleasesFragment.OnClickReleaseListener
-    {
-        @Override public void onClick(Release release)
-        {
-            changeToDetailReleaseView(release);
-        }
-    }
-
     private HomeViewModel viewModel;
 
     @Override
@@ -237,7 +229,14 @@ public class HomeActivity extends AppCompatActivity
     public void changeToUserReleaseTab()
     {
         ShowReleasesFragment srf = new UserReleasesFragment();
-        srf.setItemOnClickListener(new OpenReleaseDetailListener());
+        srf.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
+        {
+            @Override
+            public void onClick(Release r)
+            {
+                changeToDetailReleaseView(r);
+            }
+        });
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, srf, "USER_RELEASES")
@@ -277,7 +276,14 @@ public class HomeActivity extends AppCompatActivity
     public void changeToSearchReleasesTab()
     {
         ShowReleasesFragment showReleasesFragment = new SearchReleasesFragment();
-        showReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
+        showReleasesFragment.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
+        {
+            @Override
+            public void onClick(Release r)
+            {
+                changeToDetailReleaseView(r);
+            }
+        });
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, showReleasesFragment, "SEARCH_RELEASES")
