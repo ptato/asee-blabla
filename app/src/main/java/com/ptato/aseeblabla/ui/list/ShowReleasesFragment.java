@@ -38,7 +38,7 @@ public abstract class ShowReleasesFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.releases_list_view, container, false);
+        View rootView = inflater.inflate(R.layout.general_list_content, container, false);
         recyclerView = rootView.findViewById(R.id.releases_recycler);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -117,7 +117,7 @@ public abstract class ShowReleasesFragment extends Fragment
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
         {
             View releaseLayoutView = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.release_entry, viewGroup, false);
+                    .inflate(R.layout.release_list_entry, viewGroup, false);
 
 
             return new ViewHolder(releaseLayoutView);

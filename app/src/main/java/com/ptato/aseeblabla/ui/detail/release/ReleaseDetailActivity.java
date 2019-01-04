@@ -35,7 +35,7 @@ public class ReleaseDetailActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.release_detail);
+        setContentView(R.layout.activity_detail_release);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

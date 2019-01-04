@@ -54,7 +54,7 @@ public class ArtistDetailActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.artist_detail);
+        setContentView(R.layout.activity_detail_artist);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

@@ -38,7 +38,7 @@ public abstract class ShowArtistsFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.releases_list_view, container, false);
+        View rootView = inflater.inflate(R.layout.general_list_content, container, false);
         recyclerView = rootView.findViewById(R.id.releases_recycler);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -112,7 +112,7 @@ public abstract class ShowArtistsFragment extends Fragment
         public ArtistsFragmentAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
         {
             View artistLayoutView = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.artist_entry, viewGroup, false);
+                    .inflate(R.layout.artist_list_entry, viewGroup, false);
             return new ViewHolder(artistLayoutView);
         }
 
