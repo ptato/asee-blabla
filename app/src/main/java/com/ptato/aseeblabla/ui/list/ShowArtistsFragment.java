@@ -22,7 +22,7 @@ import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowArtistsFragment extends Fragment
+public abstract class ShowArtistsFragment extends Fragment
 {
     private OnClickArtistListener itemOnClickListener;
 
@@ -60,19 +60,20 @@ public class ShowArtistsFragment extends Fragment
         itemOnClickListener = listener;
     }
 
-    public void showArtists(LiveData<List<Artist>> inputArtists)
+    public abstract LiveData<List<Artist>> getShownArtists();
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
-        if (inputArtists == null)
-            updateUi(null);
-        else
-            inputArtists.observe(this, new Observer<List<Artist>>()
+        super.onActivityCreated(savedInstanceState);
+        getShownArtists().observe(this, new Observer<List<Artist>>()
+        {
+            @Override
+            public void onChanged(@Nullable List<Artist> releases)
             {
-                @Override
-                public void onChanged(@Nullable List<Artist> artists)
-                {
-                    updateUi(artists);
-                }
-            });
+                updateUi(releases);
+            }
+        });
     }
 
     private void updateUi(@Nullable List<Artist> artists)

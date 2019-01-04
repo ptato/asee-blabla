@@ -21,6 +21,9 @@ public interface ReleaseDAO
     @Query("SELECT * FROM releases")
     LiveData<List<Release>> getAll();
 
+    @Query("SELECT *FROM releases WHERE lower(title) LIKE '%'||lower(:query)||'%' OR lower(artist) LIKE '%'||lower(:query)||'%'")
+    LiveData<List<Release>> search(String query);
+
     @Query("SELECT * FROM releases WHERE discogsId = :id")
     LiveData<Release> getReleaseOfId(int id);
     @Query("SELECT count(*) FROM releases WHERE discogsId = :id")

@@ -77,6 +77,15 @@ public class Repository
         return dao.getAll();
     }
 
+    public LiveData<List<Release>> searchUserReleases(String query)
+    {
+        ReleaseDAO dao = database.releaseDAO();
+        if (query == null)
+            return dao.getAll();
+        else
+            return dao.search(query);
+    }
+
     public LiveData<Artist> getArtist(int id)
     {
         return DiscogsAPIUtils.getArtist(id);

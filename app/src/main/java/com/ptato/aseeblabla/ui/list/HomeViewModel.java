@@ -23,7 +23,16 @@ public class HomeViewModel extends ViewModel
     }
     public AppNavigationTab currentNavigationTab;
 
-    private LiveData<List<Release>> userReleases;
+    private final MutableLiveData<String> userReleaseSearchQueryInput = new MutableLiveData<>();
+    private LiveData<List<Release>> userReleases =
+            Transformations.switchMap(userReleaseSearchQueryInput, new Function<String, LiveData<List<Release>>>()
+            {
+                @Override
+                public LiveData<List<Release>> apply(String input)
+                {
+                    return repository.searchUserReleases(input);
+                }
+            });
 
     private final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
     private final LiveData<List<Artist>> artistSearchResults =
@@ -50,13 +59,21 @@ public class HomeViewModel extends ViewModel
     public HomeViewModel(@NonNull Repository _repository)
     {
         repository = _repository;
-        userReleases = repository.getUserReleases();
+        userReleaseSearchQueryInput.setValue(null);
         currentNavigationTab = AppNavigationTab.USER_RELEASES;
     }
 
     public LiveData<List<Release>> getUserReleases()
     {
         return userReleases;
+    }
+    public void setUserReleaseSearchQuery(String query)
+    {
+        userReleaseSearchQueryInput.setValue(query);
+    }
+    public String getCurrentUserReleaseSearchQuery()
+    {
+        return userReleaseSearchQueryInput.getValue();
     }
 
     public LiveData<List<Artist>> getArtistSearchResults()

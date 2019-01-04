@@ -9,13 +9,13 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ptato.aseeblabla.ui.list.HomeActivity;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.utilities.DownloadImageTask;
@@ -23,7 +23,7 @@ import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowReleasesFragment extends Fragment
+public abstract class ShowReleasesFragment extends Fragment
 {
     public interface OnClickReleaseListener
     {
@@ -33,7 +33,6 @@ public class ShowReleasesFragment extends Fragment
     private RecyclerView recyclerView;
     private OnClickReleaseListener itemOnClickListener;
     private TextView emptyTextView;
-
 
     @Nullable
     @Override
@@ -51,28 +50,31 @@ public class ShowReleasesFragment extends Fragment
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
                 recyclerView.getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
+
+        Log.i(this.getClass().getSimpleName(), "OnCreateView");
+
         return rootView;
     }
-
 
     public void setItemOnClickListener(OnClickReleaseListener listener)
     {
         itemOnClickListener = listener;
     }
 
-    public void showReleases(LiveData<List<Release>> inputReleases)
+    protected abstract LiveData<List<Release>> getShownReleases();
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
-        if (inputReleases == null)
-            updateUi(null);
-        else
-            inputReleases.observe(this, new Observer<List<Release>>()
+        super.onActivityCreated(savedInstanceState);
+        getShownReleases().observe(this, new Observer<List<Release>>()
+        {
+            @Override
+            public void onChanged(@Nullable List<Release> releases)
             {
-                @Override
-                public void onChanged(@Nullable List<Release> releases)
-                {
-                    updateUi(releases);
-                }
-            });
+                updateUi(releases);
+            }
+        });
     }
 
     private void updateUi(@Nullable List<Release> releases)

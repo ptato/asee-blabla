@@ -1,33 +1,54 @@
 package com.ptato.aseeblabla.ui.detail.artist;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.support.v7.widget.Toolbar;
 
-
-import com.ptato.aseeblabla.data.db.Release;
-import com.ptato.aseeblabla.ui.AppViewModelFactory;
-import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
-import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailViewModel;
-import com.ptato.aseeblabla.ui.list.ShowReleasesFragment;
-import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
+import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.AppViewModelFactory;
+import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
+import com.ptato.aseeblabla.ui.list.ShowReleasesFragment;
+import com.ptato.aseeblabla.utilities.DownloadImageTask;
+
+import java.util.List;
 
 public class ArtistDetailActivity extends AppCompatActivity
 {
     public static final String ARTIST_ID_EXTRA = "ARTIST_ID_EXTRA";
+
+    public static class ShowArtistReleasesFragment extends ShowReleasesFragment
+    {
+        @Override
+        protected LiveData<List<Release>> getShownReleases()
+        {
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                Repository repository = Repository.getInstance(activity);
+                AppViewModelFactory factory = new AppViewModelFactory(repository);
+                ArtistDetailViewModel viewModel = ViewModelProviders.of(activity, factory).get(ArtistDetailViewModel.class);
+                return viewModel.getArtistReleases();
+            }
+
+            return new MutableLiveData<>();
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -60,7 +81,7 @@ public class ArtistDetailActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
+                ShowReleasesFragment showReleasesFragment = new ShowArtistReleasesFragment();
                 showReleasesFragment.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
                 {
                     @Override
@@ -76,7 +97,6 @@ public class ArtistDetailActivity extends AppCompatActivity
                         .replace(R.id.artist_detail_content, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
                         .addToBackStack(null)
                         .commit();
-                showReleasesFragment.showReleases(viewModel.getArtistReleases());
             }
         });
     }

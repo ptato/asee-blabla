@@ -1,6 +1,8 @@
 package com.ptato.aseeblabla.ui.list;
 
 import android.app.SearchManager;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +10,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -108,7 +110,6 @@ public class HomeActivity extends AppCompatActivity
                         if (artists != null && artists.size() > 0)
                         {
                             viewModel.setArtistSearchQuery(null);
-                            if (f != null) ((ShowArtistsFragment) f).showArtists(null);
                         } else
                         {
                             fm.popBackStack();
@@ -116,12 +117,13 @@ public class HomeActivity extends AppCompatActivity
                         break;
 
                     case USER_RELEASES:
-                        /*
-                        if (((UserReleasesFragment)f).isUsingSearchResults())
-                            ((UserReleasesFragment)f).clearSearchQuery();
-                        else
-                        */
+                        if (viewModel.getCurrentUserReleaseSearchQuery() != null)
+                        {
+                            viewModel.setUserReleaseSearchQuery(null);
+                        } else
+                        {
                             fm.popBackStack();
+                        }
                         break;
                 }
             } else
@@ -136,7 +138,7 @@ public class HomeActivity extends AppCompatActivity
     {
         getMenuInflater().inflate(R.menu.home, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         if (searchManager != null)
         {
@@ -152,17 +154,15 @@ public class HomeActivity extends AppCompatActivity
                     switch (viewModel.currentNavigationTab)
                     {
                         case USER_RELEASES:
-                            //if (f != null) ((ShowReleasesFragment)f).showReleases(viewModel.getUserReleases());
+                            viewModel.setUserReleaseSearchQuery(s);
                             break;
 
                         case SEARCH_ARTISTS:
                             viewModel.setArtistSearchQuery(s);
-                            if (f != null) ((ShowArtistsFragment)f).showArtists(viewModel.getArtistSearchResults());
                             break;
 
                         case SEARCH_RELEASES:
                             viewModel.setReleaseSearchQuery(s);
-                            if (f != null) ((ShowReleasesFragment)f).showReleases(viewModel.getReleaseSearchResults());
                             break;
                     }
 
@@ -229,11 +229,11 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
+
     public void changeToUserReleaseTab()
     {
-        ShowReleasesFragment srf = new ShowReleasesFragment();
+        ShowReleasesFragment srf = new UserReleasesFragment();
         srf.setItemOnClickListener(new OpenReleaseDetailListener());
-        srf.showReleases(viewModel.getUserReleases());
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, srf, "USER_RELEASES")
@@ -242,11 +242,30 @@ public class HomeActivity extends AppCompatActivity
         viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.USER_RELEASES;
     }
 
+    public static class UserReleasesFragment extends ShowReleasesFragment
+    {
+        @Override
+        protected LiveData<List<Release>> getShownReleases()
+        {
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                Repository repository = Repository.getInstance(activity);
+                AppViewModelFactory factory = new AppViewModelFactory(repository);
+                HomeViewModel viewModel = ViewModelProviders.of(activity, factory).get(HomeViewModel.class);
+                return viewModel.getUserReleases();
+            }
+
+            return new MutableLiveData<>();
+        }
+    }
+
+
+
     public void changeToSearchReleasesTab()
     {
-        ShowReleasesFragment showReleasesFragment = new ShowReleasesFragment();
+        ShowReleasesFragment showReleasesFragment = new SearchReleasesFragment();
         showReleasesFragment.setItemOnClickListener(new OpenReleaseDetailListener());
-        showReleasesFragment.showReleases(viewModel.getReleaseSearchResults());
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, showReleasesFragment, "SEARCH_RELEASES")
@@ -255,9 +274,30 @@ public class HomeActivity extends AppCompatActivity
         viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.SEARCH_RELEASES;
     }
 
+    public static class SearchReleasesFragment extends ShowReleasesFragment
+    {
+        @Override
+        protected LiveData<List<Release>> getShownReleases()
+        {
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                Repository repository = Repository.getInstance(activity);
+                AppViewModelFactory factory = new AppViewModelFactory(repository);
+                HomeViewModel viewModel = ViewModelProviders.of(activity, factory).get(HomeViewModel.class);
+                return viewModel.getReleaseSearchResults();
+            }
+
+            return new MutableLiveData<>();
+        }
+    }
+
+
+
+
     public void changeToSearchArtistsTab()
     {
-        ShowArtistsFragment saf = new ShowArtistsFragment();
+        ShowArtistsFragment saf = new SearchArtistsFragment();
         saf.setItemOnClickListener(new ShowArtistsFragment.OnClickArtistListener()
         {
             @Override
@@ -266,7 +306,6 @@ public class HomeActivity extends AppCompatActivity
                 changeToDetailArtistView(r);
             }
         });
-        saf.showArtists(viewModel.getArtistSearchResults());
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_content_area, saf, "SEARCH_ARTISTS")
@@ -274,6 +313,25 @@ public class HomeActivity extends AppCompatActivity
                 .commit();
         viewModel.currentNavigationTab = HomeViewModel.AppNavigationTab.SEARCH_ARTISTS;
     }
+
+    public static class SearchArtistsFragment extends ShowArtistsFragment
+    {
+        @Override
+        public LiveData<List<Artist>> getShownArtists()
+        {
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                Repository repository = Repository.getInstance(activity);
+                AppViewModelFactory factory = new AppViewModelFactory(repository);
+                HomeViewModel viewModel = ViewModelProviders.of(activity, factory).get(HomeViewModel.class);
+                return viewModel.getArtistSearchResults();
+            }
+
+            return new MutableLiveData<>();
+        }
+    }
+
 
     public void changeToDetailReleaseView(Release release)
     {
