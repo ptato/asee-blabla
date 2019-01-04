@@ -1,5 +1,6 @@
 package com.ptato.aseeblabla.ui.list.artists;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +26,12 @@ import com.ptato.aseeblabla.utilities.DownloadImageTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArtistSearchFragment extends Fragment
+public class ShowArtistsFragment extends Fragment
 {
-    private RecyclerView recyclerView;
     private OnClickArtistListener itemOnClickListener;
 
+    private RecyclerView recyclerView;
     private TextView emptyTextView;
-    private ArtistSearchViewModel viewModel;
 
     public interface OnClickArtistListener
     {
@@ -60,18 +59,17 @@ public class ArtistSearchFragment extends Fragment
         return rootView;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    public void setItemOnClickListener(OnClickArtistListener listener)
     {
-        super.onActivityCreated(savedInstanceState);
-        FragmentActivity activity = getActivity();
-        if (activity != null)
-        {
-            Repository repository = Repository.getInstance(activity);
-            ListViewModelFactory factory = new ListViewModelFactory(repository);
-            viewModel = ViewModelProviders.of(this, factory).get(ArtistSearchViewModel.class);
+        itemOnClickListener = listener;
+    }
 
-            viewModel.getArtists().observe(this, new Observer<List<Artist>>()
+    public void showArtists(LiveData<List<Artist>> inputArtists)
+    {
+        if (inputArtists == null)
+            updateUi(null);
+        else
+            inputArtists.observe(this, new Observer<List<Artist>>()
             {
                 @Override
                 public void onChanged(@Nullable List<Artist> artists)
@@ -79,18 +77,12 @@ public class ArtistSearchFragment extends Fragment
                     updateUi(artists);
                 }
             });
-        }
     }
 
-    public void setItemOnClickListener(OnClickArtistListener listener)
-    {
-        itemOnClickListener = listener;
-    }
-
-    private void updateUi(List<Artist> artists)
+    private void updateUi(@Nullable List<Artist> artists)
     {
         ArtistsFragmentAdapter afa = (ArtistsFragmentAdapter) recyclerView.getAdapter();
-        if (afa != null)
+        if (artists != null && afa != null)
         {
             afa.artists = artists;
             afa.notifyDataSetChanged();
@@ -100,24 +92,19 @@ public class ArtistSearchFragment extends Fragment
                 emptyTextView.setVisibility(View.VISIBLE);
         }
 
-        if (artists.size() == 0)
+        if (artists == null || artists.size() == 0)
         {
             emptyTextView.setText(R.string.results_not_found);
             emptyTextView.setVisibility(View.VISIBLE);
         }
     }
 
-    public void setSearchQuery(String query)
+
+    public int getArtistCount()
     {
-        viewModel.setSearchQuery(query);
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        return adapter == null ? 0 : adapter.getItemCount();
     }
-
-    public void clearSearchQuery()
-    {
-        viewModel.setSearchQuery(null);
-    }
-
-
 
     private class ArtistsFragmentAdapter extends RecyclerView.Adapter<ArtistsFragmentAdapter.ViewHolder>
     {
@@ -184,11 +171,5 @@ public class ArtistSearchFragment extends Fragment
                 restOfArtistView.setOnClickListener(onClickListener);
             }
         }
-    }
-
-    public int getArtistCount()
-    {
-        RecyclerView.Adapter adapter = recyclerView.getAdapter();
-        return adapter == null ? 0 : adapter.getItemCount();
     }
 }

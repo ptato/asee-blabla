@@ -1,11 +1,14 @@
 package com.ptato.aseeblabla.ui.list;
 
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,12 +26,12 @@ import android.view.MenuItem;
 
 import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.DiscogsAPIUtils;
+import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
-import com.ptato.aseeblabla.ui.list.artists.ArtistSearchFragment;
-import com.ptato.aseeblabla.ui.list.artists.ArtistSearchViewModel;
+import com.ptato.aseeblabla.ui.list.artists.ShowArtistsFragment;
 import com.ptato.aseeblabla.ui.list.releases.SearchReleasesFragment;
 import com.ptato.aseeblabla.ui.list.user.UserReleasesFragment;
 
@@ -51,10 +54,12 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    public class OpenArtistDetailListener implements ArtistSearchFragment.OnClickArtistListener
+    public class OpenArtistDetailListener implements ShowArtistsFragment.OnClickArtistListener
     {
         @Override public void onClick(Artist a) { changeToDetailArtistView(a); }
     }
+
+    private HomeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -73,6 +78,10 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        Repository repository = Repository.getInstance(this);
+        ListViewModelFactory factory = new ListViewModelFactory(repository);
+        viewModel = ViewModelProviders.of(this, factory).get(HomeViewModel.class);
+
         changeToUserReleaseView(false);
     }
 
@@ -88,13 +97,16 @@ public class HomeActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             Fragment f = fm.findFragmentById(R.id.home_content_area);
 
-            if (f instanceof ArtistSearchFragment)
+            if (f instanceof ShowArtistsFragment)
             {
-                if (((ArtistSearchFragment)f).getArtistCount() > 0)
-                    ((ArtistSearchFragment)f).clearSearchQuery();
-                else
+                if (((ShowArtistsFragment)f).getArtistCount() > 0)
+                {
+                    viewModel.setSearchQuery(null);
+                    ((ShowArtistsFragment) f).showArtists(null);
+                } else
+                {
                     fm.popBackStack();
-
+                }
             } else if (f instanceof UserReleasesFragment) {
                 if (((UserReleasesFragment)f).isUsingSearchResults())
                     ((UserReleasesFragment)f).clearSearchQuery();
@@ -130,10 +142,11 @@ public class HomeActivity extends AppCompatActivity
                     Log.i(HomeActivity.this.getClass().getSimpleName(), "La búsqueda es '" + s + "'");
                     Log.i(HomeActivity.this.getClass().getSimpleName(),
                             "El fragmento actual es " + (f==null?"'NULL'":f.getClass().getSimpleName()));
-                    if (f instanceof ArtistSearchFragment)
+                    if (f instanceof ShowArtistsFragment)
                     {
                         Log.i(HomeActivity.this.getClass().getSimpleName(), "Buscando artistas '" + s + "'");
-                        ((ArtistSearchFragment)f).setSearchQuery(s);
+                        viewModel.setSearchQuery(s);
+                        ((ShowArtistsFragment)f).showArtists(viewModel.getArtists());
                         menu.findItem(R.id.action_search).collapseActionView();
                         return true;
                     } else if (f instanceof SearchReleasesFragment)
@@ -196,7 +209,7 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_releases && !(f instanceof SearchReleasesFragment))
         {
             changeToSearchReleaseView();
-        } else if (id == R.id.nav_artists && !(f instanceof ArtistSearchFragment))
+        } else if (id == R.id.nav_artists && !(f instanceof ShowArtistsFragment))
         {
             changeToGeneralArtistView();
         } else if (id == R.id.nav_my_releases && !(f instanceof UserReleasesFragment))
@@ -439,11 +452,11 @@ public class HomeActivity extends AppCompatActivity
 
     public void changeToGeneralArtistView()
     {
-        ArtistSearchFragment artistSearchFragment = new ArtistSearchFragment();
-        artistSearchFragment.setItemOnClickListener(new OpenArtistDetailListener());
+        ShowArtistsFragment showArtistsFragment = new ShowArtistsFragment();
+        showArtistsFragment.setItemOnClickListener(new OpenArtistDetailListener());
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.home_content_area, artistSearchFragment, ArtistSearchFragment.class.getSimpleName())
+                .replace(R.id.home_content_area, showArtistsFragment, ShowArtistsFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
     }

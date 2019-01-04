@@ -1,4 +1,4 @@
-package com.ptato.aseeblabla.ui.list.artists;
+package com.ptato.aseeblabla.ui.list;
 
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
@@ -14,7 +14,7 @@ import com.ptato.aseeblabla.data.db.Release;
 
 import java.util.List;
 
-public class ArtistSearchViewModel extends ViewModel
+public class HomeViewModel extends ViewModel
 {
     private final Repository repository;
     private final MutableLiveData<String> searchQueryInput = new MutableLiveData<>();
@@ -28,7 +28,7 @@ public class ArtistSearchViewModel extends ViewModel
                 }
             });
 
-    public ArtistSearchViewModel(@NonNull Repository _repository)
+    public HomeViewModel(@NonNull Repository _repository)
     {
         repository = _repository;
     }
