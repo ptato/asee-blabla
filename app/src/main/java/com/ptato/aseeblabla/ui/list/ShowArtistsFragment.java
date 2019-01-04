@@ -64,6 +64,18 @@ public abstract class ShowArtistsFragment extends Fragment
         itemOnClickListener = listener;
     }
 
+    public void setTitle(String title)
+    {
+        if (title == null)
+        {
+            titleView.setVisibility(View.GONE);
+        } else
+        {
+            titleView.setVisibility(View.VISIBLE);
+            titleView.setText(title);
+        }
+    }
+
     public abstract LiveData<List<Artist>> getShownArtists();
 
     @Override

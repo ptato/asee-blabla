@@ -66,6 +66,18 @@ public abstract class ShowReleasesFragment extends Fragment
         itemOnClickListener = listener;
     }
 
+    public void setTitle(String title)
+    {
+        if (title == null)
+        {
+            titleView.setVisibility(View.GONE);
+        } else
+        {
+            titleView.setVisibility(View.VISIBLE);
+            titleView.setText(title);
+        }
+    }
+
     protected abstract LiveData<List<Release>> getShownReleases();
 
     @Override

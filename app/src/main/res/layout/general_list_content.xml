@@ -6,11 +6,13 @@
 
     <TextView
         android:id="@+id/list_title"
-        android:layout_width="360dp"
+        android:layout_width="347dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:paddingBottom="@dimen/nav_header_vertical_spacing"
         android:text="@string/list_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:layout_gravity="center"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
