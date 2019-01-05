@@ -63,7 +63,7 @@ public class ArtistDetailActivity extends AppCompatActivity
         if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
         int artistId = getIntent().getIntExtra(ARTIST_ID_EXTRA, -1);
-        Repository repository = Repository.getInstance(this);
+        final Repository repository = Repository.getInstance(this);
         AppViewModelFactory factory = new AppViewModelFactory(repository, artistId);
         final ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
         viewModel.getArtist().observe(this, new Observer<Artist>()

@@ -1,15 +1,19 @@
 package com.ptato.aseeblabla.data;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.ptato.aseeblabla.data.db.AppDatabase;
 import com.ptato.aseeblabla.data.db.Artist;
+import com.ptato.aseeblabla.data.db.ArtistDAO;
 import com.ptato.aseeblabla.data.db.Release;
 import com.ptato.aseeblabla.data.db.ReleaseDAO;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Repository
@@ -77,6 +81,19 @@ public class Repository
         return dao.getAll();
     }
 
+    public LiveData<List<Artist>> getCachedArtists()
+    {
+        ArtistDAO dao = database.artistDAO();
+        return dao.getAll();
+    }
+
+    public void bumpCachedArtist(int id)
+    {
+        ArtistDAO dao = database.artistDAO();
+        Date date = new Date();
+        dao.bumpArtistDate(id, date);
+    }
+
     public LiveData<List<Release>> searchUserReleases(String query)
     {
         ReleaseDAO dao = database.releaseDAO();
@@ -86,9 +103,44 @@ public class Repository
             return dao.search(query);
     }
 
-    public LiveData<Artist> getArtist(int id)
+    public LiveData<Artist> getArtist(final int id)
     {
-        return DiscogsAPIUtils.getArtist(id);
+        final ArtistDAO dao = database.artistDAO();
+        final MediatorLiveData<Artist> liveData = new MediatorLiveData<>();
+        final LiveData<Artist> cachedArtist = dao.getArtistOfId(id);
+
+        final Observer<Artist> networkObserver = new Observer<Artist>()
+        {
+            @Override
+            public void onChanged(@Nullable Artist artist)
+            {
+                if (artist != null && artist.discogsId == id)
+                {
+                    liveData.setValue(artist);
+                    dao.delete(artist);
+                    artist.lastAccessedDate = new Date();
+                    dao.insert(artist);
+                }
+            }
+        };
+
+        liveData.addSource(cachedArtist, new Observer<Artist>()
+        {
+            @Override
+            public void onChanged(@Nullable Artist artist)
+            {
+                if (artist == null || artist.discogsId == -1)
+                {
+                    liveData.addSource(DiscogsAPIUtils.getArtist(id), networkObserver);
+                    liveData.removeSource(cachedArtist);
+                } else
+                {
+                    liveData.setValue(artist);
+                }
+            }
+        });
+
+        return liveData;
     }
 
     public LiveData<List<Release>> getArtistReleases(int id)

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -87,7 +86,6 @@ public class HomeActivity extends AppCompatActivity
         } else
         {
             FragmentManager fm = getSupportFragmentManager();
-            Fragment f = fm.findFragmentById(R.id.home_content_area);
 
             if (fm.getBackStackEntryCount() > 0)
             {
@@ -144,7 +142,6 @@ public class HomeActivity extends AppCompatActivity
                 @Override
                 public boolean onQueryTextSubmit(String s)
                 {
-                    Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_content_area);
                     Log.i(HomeActivity.this.getClass().getSimpleName(), "La búsqueda es '" + s + "'");
 
                     switch (viewModel.currentNavigationTab)
@@ -335,7 +332,7 @@ public class HomeActivity extends AppCompatActivity
     public static class SearchArtistsFragment extends ShowArtistsFragment
     {
         @Override
-        public LiveData<List<Artist>> getShownArtists()
+        protected LiveData<List<Artist>> getShownArtists()
         {
             FragmentActivity activity = getActivity();
             if (activity != null)
@@ -344,6 +341,21 @@ public class HomeActivity extends AppCompatActivity
                 AppViewModelFactory factory = new AppViewModelFactory(repository);
                 HomeViewModel viewModel = ViewModelProviders.of(activity, factory).get(HomeViewModel.class);
                 return viewModel.getArtistSearchResults();
+            }
+
+            return new MutableLiveData<>();
+        }
+
+        @Override
+        protected LiveData<String> getShownTitle()
+        {
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                Repository repository = Repository.getInstance(activity);
+                AppViewModelFactory factory = new AppViewModelFactory(repository);
+                HomeViewModel viewModel = ViewModelProviders.of(activity, factory).get(HomeViewModel.class);
+                return viewModel.artistSearchTitle;
             }
 
             return new MutableLiveData<>();
@@ -361,6 +373,7 @@ public class HomeActivity extends AppCompatActivity
     public void changeToDetailArtistView(Artist artist)
     {
         Intent intent = new Intent(this, ArtistDetailActivity.class);
+        Repository.getInstance(this).bumpCachedArtist(artist.discogsId);
         intent.putExtra(ArtistDetailActivity.ARTIST_ID_EXTRA, artist.discogsId);
         startActivity(intent);
     }

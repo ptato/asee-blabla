@@ -1,6 +1,7 @@
 package com.ptato.aseeblabla.ui.list;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -76,7 +77,14 @@ public abstract class ShowArtistsFragment extends Fragment
         }
     }
 
-    public abstract LiveData<List<Artist>> getShownArtists();
+    protected abstract LiveData<List<Artist>> getShownArtists();
+    protected LiveData<String> getShownTitle()
+    {
+        MutableLiveData<String> liveData = new MutableLiveData<>();
+        liveData.setValue(null);
+        return liveData;
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
@@ -88,6 +96,14 @@ public abstract class ShowArtistsFragment extends Fragment
             public void onChanged(@Nullable List<Artist> releases)
             {
                 updateUi(releases);
+            }
+        });
+        getShownTitle().observe(this, new Observer<String>()
+        {
+            @Override
+            public void onChanged(@Nullable String s)
+            {
+                setTitle(s);
             }
         });
     }

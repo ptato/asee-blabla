@@ -3,9 +3,11 @@ package com.ptato.aseeblabla.data.db;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 
-@Database(entities = { Release.class }, version=1, exportSchema=false)
+@Database(entities = { Release.class, Artist.class }, version=1, exportSchema=false)
+@TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
     private static AppDatabase instance = null;
@@ -18,4 +20,5 @@ public abstract class AppDatabase extends RoomDatabase
     }
 
     public abstract ReleaseDAO releaseDAO();
+    public abstract ArtistDAO  artistDAO();
 }

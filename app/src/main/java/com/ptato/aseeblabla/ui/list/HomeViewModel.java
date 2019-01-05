@@ -34,6 +34,7 @@ public class HomeViewModel extends ViewModel
                 }
             });
 
+    public final MutableLiveData<String> artistSearchTitle = new MutableLiveData<>();
     private final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
     private final LiveData<List<Artist>> artistSearchResults =
             Transformations.switchMap(artistSearchQueryInput, new Function<String, LiveData<List<Artist>>>()
@@ -41,7 +42,15 @@ public class HomeViewModel extends ViewModel
                 @Override
                 public LiveData<List<Artist>> apply(String input)
                 {
-                    return repository.searchArtists(input);
+                    if (input == null)
+                    {
+                        artistSearchTitle.setValue("Búsquedas Recientes");
+                        return repository.getCachedArtists();
+                    } else
+                    {
+                        artistSearchTitle.setValue(null);
+                        return repository.searchArtists(input);
+                    }
                 }
             });
 
@@ -60,6 +69,7 @@ public class HomeViewModel extends ViewModel
     {
         repository = _repository;
         userReleaseSearchQueryInput.setValue(null);
+        artistSearchQueryInput.setValue(null);
         currentNavigationTab = AppNavigationTab.USER_RELEASES;
     }
 
