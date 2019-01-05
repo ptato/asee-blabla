@@ -32,6 +32,7 @@ import java.util.List;
 public class ArtistDetailActivity extends AppCompatActivity
 {
     public static final String ARTIST_ID_EXTRA = "ARTIST_ID_EXTRA";
+    private ArtistDetailViewModel viewModel;
 
     public static class ShowArtistReleasesFragment extends ShowReleasesFragment
     {
@@ -66,7 +67,7 @@ public class ArtistDetailActivity extends AppCompatActivity
         int artistId = getIntent().getIntExtra(ARTIST_ID_EXTRA, -1);
         final Repository repository = Repository.getInstance(this);
         AppViewModelFactory factory = new AppViewModelFactory(repository, artistId);
-        final ArtistDetailViewModel viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
+        viewModel = ViewModelProviders.of(this, factory).get(ArtistDetailViewModel.class);
         viewModel.getArtist().observe(this, new Observer<Artist>()
         {
             @Override
@@ -76,30 +77,59 @@ public class ArtistDetailActivity extends AppCompatActivity
             }
         });
 
+        viewModel.isShowingArtistReleases.observe(this, new Observer<Boolean>()
+        {
+            @Override
+            public void onChanged(@Nullable Boolean isShowing)
+            {
+                View defaultContent = findViewById(R.id.artist_detail_default_content);
+                if (isShowing != null && isShowing)
+                {
+                    defaultContent.setVisibility(View.GONE);
+                    setupArtistReleasesFragment();
+                } else
+                {
+                    defaultContent.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         final Button viewReleases = findViewById(R.id.detail_artist_view_releases);
         viewReleases.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                ShowReleasesFragment showReleasesFragment = new ShowArtistReleasesFragment();
-                showReleasesFragment.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
-                {
-                    @Override
-                    public void onClick(Release r)
-                    {
-                        Intent intent = new Intent(ArtistDetailActivity.this, ReleaseDetailActivity.class);
-                        intent.putExtra(ReleaseDetailActivity.RELEASE_ID_EXTRA, r.discogsId);
-                        ArtistDetailActivity.this.startActivity(intent);
-                    }
-                });
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.artist_detail_content, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
-                        .addToBackStack(null)
-                        .commit();
+                viewModel.isShowingArtistReleases.setValue(true);
             }
         });
+    }
+
+    private void setupArtistReleasesFragment()
+    {
+        ShowReleasesFragment showReleasesFragment = new ShowArtistReleasesFragment();
+        showReleasesFragment.setItemOnClickListener(new ShowReleasesFragment.OnClickReleaseListener()
+        {
+            @Override
+            public void onClick(Release r)
+            {
+                Intent intent = new Intent(ArtistDetailActivity.this, ReleaseDetailActivity.class);
+                intent.putExtra(ReleaseDetailActivity.RELEASE_ID_EXTRA, r.discogsId);
+                ArtistDetailActivity.this.startActivity(intent);
+            }
+        });
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.artist_detail_content, showReleasesFragment, ShowReleasesFragment.class.getSimpleName())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        viewModel.isShowingArtistReleases.setValue(false);
     }
 
     @Override

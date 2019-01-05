@@ -2,10 +2,9 @@ package com.ptato.aseeblabla.ui.detail.artist;
 
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.support.annotation.NonNull;
 
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
@@ -19,12 +18,14 @@ public class ArtistDetailViewModel extends ViewModel
 
     private LiveData<Artist> artistData;
     private LiveData<List<Release>> artistReleases;
+    public MutableLiveData<Boolean> isShowingArtistReleases = new MutableLiveData<>();
 
     public ArtistDetailViewModel(Repository _repository, int id)
     {
         repository = _repository;
         artistData = repository.getArtist(id);
         artistReleases = null;
+        isShowingArtistReleases.setValue(false);
     }
 
     public LiveData<Artist> getArtist()
