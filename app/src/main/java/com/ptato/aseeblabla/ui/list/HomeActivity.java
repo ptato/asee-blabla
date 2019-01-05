@@ -92,28 +92,24 @@ public class HomeActivity extends AppCompatActivity
                 switch (viewModel.currentNavigationTab)
                 {
                     case SEARCH_RELEASES:
-                        // @TODO: Need to un-show the results and go back to initial view of this tab
-                        fm.popBackStack();
+                        if (viewModel.releaseSearchQueryInput.getValue() != null)
+                            viewModel.releaseSearchQueryInput.setValue(null);
+                        else
+                            fm.popBackStack();
                         break;
 
                     case SEARCH_ARTISTS:
                         if (viewModel.artistSearchQueryInput.getValue() != null)
-                        {
                             viewModel.artistSearchQueryInput.setValue(null);
-                        } else
-                        {
+                        else
                             fm.popBackStack();
-                        }
                         break;
 
                     case USER_RELEASES:
-                        if (viewModel.getCurrentUserReleaseSearchQuery() != null)
-                        {
-                            viewModel.setUserReleaseSearchQuery(null);
-                        } else
-                        {
+                        if (viewModel.userReleaseSearchQueryInput.getValue() != null)
+                            viewModel.userReleaseSearchQueryInput.setValue(null);
+                        else
                             fm.popBackStack();
-                        }
                         break;
                 }
             } else
@@ -143,7 +139,7 @@ public class HomeActivity extends AppCompatActivity
                     switch (viewModel.currentNavigationTab)
                     {
                         case USER_RELEASES:
-                            viewModel.setUserReleaseSearchQuery(s);
+                            viewModel.userReleaseSearchQueryInput.setValue(s);
                             break;
 
                         case SEARCH_ARTISTS:
@@ -151,7 +147,7 @@ public class HomeActivity extends AppCompatActivity
                             break;
 
                         case SEARCH_RELEASES:
-                            viewModel.setReleaseSearchQuery(s);
+                            viewModel.releaseSearchQueryInput.setValue(s);
                             break;
                     }
 

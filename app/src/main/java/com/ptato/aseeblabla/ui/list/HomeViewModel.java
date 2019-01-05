@@ -23,7 +23,7 @@ public class HomeViewModel extends ViewModel
     }
     public AppNavigationTab currentNavigationTab;
 
-    private final MutableLiveData<String> userReleaseSearchQueryInput = new MutableLiveData<>();
+    public final MutableLiveData<String> userReleaseSearchQueryInput = new MutableLiveData<>();
     private LiveData<List<Release>> userReleases =
             Transformations.switchMap(userReleaseSearchQueryInput, new Function<String, LiveData<List<Release>>>()
             {
@@ -54,7 +54,7 @@ public class HomeViewModel extends ViewModel
                 }
             });
 
-    private final MutableLiveData<String> releaseSearchQueryInput = new MutableLiveData<>();
+    public final MutableLiveData<String> releaseSearchQueryInput = new MutableLiveData<>();
     private final LiveData<List<Release>> releaseSearchResults =
             Transformations.switchMap(releaseSearchQueryInput, new Function<String, LiveData<List<Release>>>()
             {
@@ -77,26 +77,12 @@ public class HomeViewModel extends ViewModel
     {
         return userReleases;
     }
-    public void setUserReleaseSearchQuery(String query)
-    {
-        userReleaseSearchQueryInput.setValue(query);
-    }
-    public String getCurrentUserReleaseSearchQuery()
-    {
-        return userReleaseSearchQueryInput.getValue();
-    }
-
     public LiveData<List<Artist>> getArtistSearchResults()
     {
         return artistSearchResults;
     }
-
     public LiveData<List<Release>> getReleaseSearchResults()
     {
         return releaseSearchResults;
-    }
-    public void setReleaseSearchQuery(String query)
-    {
-        releaseSearchQueryInput.setValue(query);
     }
 }
