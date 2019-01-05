@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -115,6 +116,7 @@ public class ArtistDetailActivity extends AppCompatActivity
             ImageView artistImage = findViewById(R.id.detail_artist_image);
             TextView artistName = findViewById(R.id.detail_artist_name);
             TextView artistProfile = findViewById(R.id.detail_artist_profile);
+            artistProfile.setMovementMethod(new ScrollingMovementMethod());
             TextView artistUrl = findViewById(R.id.detail_artist_url);
 
             artistName.setText(artist.name);
