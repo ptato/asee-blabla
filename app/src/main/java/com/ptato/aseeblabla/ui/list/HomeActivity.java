@@ -29,6 +29,7 @@ import com.ptato.aseeblabla.R;
 import com.ptato.aseeblabla.data.Repository;
 import com.ptato.aseeblabla.data.db.Artist;
 import com.ptato.aseeblabla.data.db.Release;
+import com.ptato.aseeblabla.ui.AppSettingsActivity;
 import com.ptato.aseeblabla.ui.AppViewModelFactory;
 import com.ptato.aseeblabla.ui.detail.artist.ArtistDetailActivity;
 import com.ptato.aseeblabla.ui.detail.release.ReleaseDetailActivity;
@@ -181,7 +182,8 @@ public class HomeActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings)
         {
-            return true;
+            Intent intent = new Intent(this, AppSettingsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/moonwave_launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        android:fullBackupContent="false">
 
 
         <activity
@@ -40,6 +41,11 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ui.list.HomeActivity">
         </activity>
+
+        <activity
+            android:name=".ui.AppSettingsActivity"
+            android:label="moonwave/settings"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
 
