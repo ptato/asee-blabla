@@ -97,13 +97,9 @@ public class HomeActivity extends AppCompatActivity
                         break;
 
                     case SEARCH_ARTISTS:
-                        // @NOTE: ShowArtistsFragment is (for now) only being used for showing
-                        // artist search results. Which mean it's always showing artist search data we
-                        // gave to it from our ViewModel.
-                        List<Artist> artists = viewModel.getArtistSearchResults().getValue();
-                        if (artists != null && artists.size() > 0)
+                        if (viewModel.artistSearchQueryInput.getValue() != null)
                         {
-                            viewModel.setArtistSearchQuery(null);
+                            viewModel.artistSearchQueryInput.setValue(null);
                         } else
                         {
                             fm.popBackStack();
@@ -151,7 +147,7 @@ public class HomeActivity extends AppCompatActivity
                             break;
 
                         case SEARCH_ARTISTS:
-                            viewModel.setArtistSearchQuery(s);
+                            viewModel.artistSearchQueryInput.setValue(s);
                             break;
 
                         case SEARCH_RELEASES:

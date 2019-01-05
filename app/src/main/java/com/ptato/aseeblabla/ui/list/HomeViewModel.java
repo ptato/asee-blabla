@@ -35,7 +35,7 @@ public class HomeViewModel extends ViewModel
             });
 
     public final MutableLiveData<String> artistSearchTitle = new MutableLiveData<>();
-    private final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
+    public final MutableLiveData<String> artistSearchQueryInput = new MutableLiveData<>();
     private final LiveData<List<Artist>> artistSearchResults =
             Transformations.switchMap(artistSearchQueryInput, new Function<String, LiveData<List<Artist>>>()
             {
@@ -89,10 +89,6 @@ public class HomeViewModel extends ViewModel
     public LiveData<List<Artist>> getArtistSearchResults()
     {
         return artistSearchResults;
-    }
-    public void setArtistSearchQuery(String query)
-    {
-        artistSearchQueryInput.setValue(query);
     }
 
     public LiveData<List<Release>> getReleaseSearchResults()
