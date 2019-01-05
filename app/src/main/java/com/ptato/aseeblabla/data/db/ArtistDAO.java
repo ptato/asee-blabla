@@ -22,6 +22,11 @@ public interface ArtistDAO
     @Query("SELECT * FROM artists ORDER BY lastAccessedDate DESC")
     LiveData<List<Artist>> getAll();
 
+    @Query("SELECT count(*) FROM artists")
+    int getCount();
+    @Query("DELETE FROM artists WHERE lastAccessedDate = (SELECT lastAccessedDate FROM artists ORDER BY lastAccessedDate ASC LIMIT 1)")
+    void deleteOldest();
+
     @Query("SELECT * FROM artists WHERE discogsId = :id")
     LiveData<Artist> getArtistOfId(int id);
 

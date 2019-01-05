@@ -103,6 +103,25 @@ public class Repository
             return dao.search(query);
     }
 
+    private void insertOrUpdateCachedArtist(Artist artist)
+    {
+        final ArtistDAO dao = database.artistDAO();
+
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (dao.getCount() >= 5)
+                    dao.deleteOldest();
+            }
+        }).start();
+
+        dao.delete(artist);
+        artist.lastAccessedDate = new Date();
+        dao.insert(artist);
+    }
+
     public LiveData<Artist> getArtist(final int id)
     {
         final ArtistDAO dao = database.artistDAO();
@@ -117,9 +136,7 @@ public class Repository
                 if (artist != null && artist.discogsId == id)
                 {
                     liveData.setValue(artist);
-                    dao.delete(artist);
-                    artist.lastAccessedDate = new Date();
-                    dao.insert(artist);
+                    insertOrUpdateCachedArtist(artist);
                 }
             }
         };
